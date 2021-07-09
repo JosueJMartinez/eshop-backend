@@ -1,19 +1,38 @@
 const express = require('express'),
-	dotenv = require('dotenv');
+	dotenv = require('dotenv'),
+	morgan = require('morgan'),
+	colors = require('colors');
 
 dotenv.config({ path: './configurations/config.env' });
 
+// DB Connection
+const connectDB = require('./configurations/db');
+
+const { API_URL, NODE_ENV, PORT, IP } = { ...process.env };
+
+// call and connect to db connection
+connectDB();
+
 const app = express();
 
-app.get('/', (req, res) => {
-	res.send('hello world');
+// Middleware
+//================================================
+//set body parser
+app.use(express.json());
+
+//================================================
+// send logs if in development mode
+if (NODE_ENV === 'dev') app.use(morgan('dev'));
+
+app.get(`${API_URL}/products`, (req, res) => {
+	res.send('products');
 });
 
 //server listens on here
-app.listen(process.env.PORT || 3000, process.env.IP || '127.0.0.1', () => {
+app.listen(PORT || 3000, IP || '127.0.0.1', () => {
 	console.log(
-		`YelpCamp App started on port: ${process.env.PORT || 3000} at IP: ${
-			process.env.IP || '127.0.0.1'
-		}`
+		`E-commerce App started on port: ${(PORT || '3000').blue} at IP: ${
+			(IP || '127.0.0.1').blue
+		}`.magenta
 	);
 });
