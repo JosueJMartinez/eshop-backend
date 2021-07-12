@@ -15,6 +15,7 @@
     "express": "^4.17.1",
     "mongoose": "^5.13.2",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.10"
+    "nodemon": "^2.0.10",
+    "slugify": "^1.5.3"
   }
 }

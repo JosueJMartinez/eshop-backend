@@ -13,6 +13,9 @@ const { API_URL, NODE_ENV, PORT, IP } = { ...process.env };
 // call and connect to db connection
 connectDB();
 
+// Routes
+const products = require('./routes/products');
+
 const app = express();
 
 // Middleware

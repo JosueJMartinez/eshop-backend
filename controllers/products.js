@@ -1,153 +1,120 @@
-const Course = require('../models/Course');
+const Product = require('../models/Product');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 
-//  @desc     Get all courses
-//  @route    Get /api/v1/courses
-//  @route    Get /api/v1/bootcamps/:bootId/courses
+//  @desc     Get all products
+//  @route    Get /api/v1/products
+//  @route    Get /api/v1/bootcamps/:bootId/products
 //  @access   Public
-exports.getCourses = asyncHandler(async (req, res, next) => {
-	// let query;
-	const { bootcampId } = { ...req.params };
-	if (bootcampId) {
-		const courses = await Course.find({ bootcamp: bootcampId });
-		res.status(200).json({
-			success: true,
-			count: courses.length,
-			data: courses,
-		});
-	} else {
-		res.status(200).json(res.advancedResults);
-	}
+exports.getProducts = asyncHandler(async (req, res, next) => {
+	const products = await Product.find({ bootcamp: bootcampId });
+	res.status(200).json({
+		success: true,
+		count: products.length,
+		data: products,
+	});
 });
 
-//  @desc     Get one course
-//  @route    Get /api/v1/courses/:courseId
+//  @desc     Get one product
+//  @route    Get /api/v1/products/:productId
 //  @access   Public
-exports.getCourse = asyncHandler(async (req, res, next) => {
-	const { courseId } = { ...req.params };
-	const course = await Course.findById(courseId).populate({
-		path: 'bootcamp',
-		select: 'name description',
-	});
+exports.getProduct = asyncHandler(async (req, res, next) => {
+	const { productId } = { ...req.params };
+	const product = await Product.findById(productId);
 
-	if (!course)
+	if (!product)
 		throw new ErrorResponse(
-			`1. Resource not found with id of ${courseId}`,
+			`1. Resource not found with id of ${productId}`,
 			404,
-			courseId
+			productId
 		);
 
 	res.status(200).json({
 		success: true,
-		data: course,
+		data: product,
 	});
 });
 
-//  @desc     Add a single Course
-//  @route    Post /api/v1/bootcamps/:bootcampId/courses
+//  @desc     Add a single Product
+//  @route    Post /api/v1/products
 //  @access   Private
-exports.createCourse = asyncHandler(async (req, res, next) => {
-	const { bootcampId } = { ...req.params };
-	const foundBootCamp = await Bootcamp.findById(bootcampId);
-	const currentUser = req.user;
-	// check for bootcamp exists before creating course
-	if (!foundBootCamp) {
-		throw new ErrorResponse(
-			`Resource not found with id of ${bootcampId}`,
-			404,
-			bootcampId
-		);
-	}
-
-	// Make sure user is owner of bootcamp to create course
-	if (
-		foundBootCamp.user.toString() !== currentUser.id &&
-		currentUser.role !== 'admin'
-	)
-		throw new ErrorResponse(
-			`User ${req.user.id} is not authorized to create course for bootcamp ${bootcampId}`,
-			401
-		);
-
-	const newCourse = new Course({
-		bootcamp: bootcampId,
-		user: req.user.id,
+exports.createProduct = asyncHandler(async (req, res, next) => {
+	const newProduct = new Product({
 		...req.body,
 	});
-	const addedCourse = await newCourse.save();
+	const addedProduct = await newProduct.save();
 
 	res.status(201).json({
 		success: true,
-		data: addedCourse,
+		data: addedProduct,
 	});
 });
 
-//  @desc     Update Course
-//  @route    Put /api/v1/courses/:courseId
-//  @access   Private
-exports.updateCourse = asyncHandler(async (req, res, next) => {
-	const { courseId } = { ...req.params };
-	const currentUser = req.user;
-	const updateCourse = req.body;
-	let course = await Course.findById(courseId);
-	if (!course)
-		throw new ErrorResponse(
-			`Resource not found with id of ${courseId}`,
-			404,
-			courseId
-		);
+// //  @desc     Update Product
+// //  @route    Put /api/v1/products/:productId
+// //  @access   Private
+// exports.updateProduct = asyncHandler(async (req, res, next) => {
+// 	const { productId } = { ...req.params };
+// 	const currentUser = req.user;
+// 	const updateProduct = req.body;
+// 	let product = await Product.findById(productId);
+// 	if (!product)
+// 		throw new ErrorResponse(
+// 			`Resource not found with id of ${productId}`,
+// 			404,
+// 			productId
+// 		);
 
-	// Make sure user is course owner or admin if return ErrorResponse
-	if (
-		course.user.toString() !== currentUser.id &&
-		currentUser.role !== 'admin'
-	)
-		throw new ErrorResponse(
-			`User ${req.user.id} is not authorized to update course ${courseId}`,
-			401
-		);
+// 	// Make sure user is product owner or admin if return ErrorResponse
+// 	if (
+// 		product.user.toString() !== currentUser.id &&
+// 		currentUser.role !== 'admin'
+// 	)
+// 		throw new ErrorResponse(
+// 			`User ${req.user.id} is not authorized to update product ${productId}`,
+// 			401
+// 		);
 
-	course = await Course.findByIdAndUpdate(courseId, updateCourse, {
-		new: true,
-		runValidators: true,
-	});
+// 	product = await Product.findByIdAndUpdate(productId, updateProduct, {
+// 		new: true,
+// 		runValidators: true,
+// 	});
 
-	res.status(200).json({
-		success: true,
-		data: course,
-	});
-});
+// 	res.status(200).json({
+// 		success: true,
+// 		data: product,
+// 	});
+// });
 
-//  @desc     Delete course
-//  @route    Delete /api/v1/courses/:courseId
-//  @access   Private
-exports.deleteCourse = asyncHandler(async (req, res, next) => {
-	const { courseId } = { ...req.params };
-	const course = await Course.findById(courseId);
-	const currentUser = req.user;
+// //  @desc     Delete product
+// //  @route    Delete /api/v1/products/:productId
+// //  @access   Private
+// exports.deleteProduct = asyncHandler(async (req, res, next) => {
+// 	const { productId } = { ...req.params };
+// 	const product = await Product.findById(productId);
+// 	const currentUser = req.user;
 
-	if (!course)
-		throw new ErrorResponse(
-			`Resource not found with id of ${courseId}`,
-			404,
-			courseId
-		);
+// 	if (!product)
+// 		throw new ErrorResponse(
+// 			`Resource not found with id of ${productId}`,
+// 			404,
+// 			productId
+// 		);
 
-	// Make sure user is course owner or admin if return ErrorResponse
-	if (
-		course.user.toString() !== currentUser.id &&
-		currentUser.role !== 'admin'
-	)
-		throw new ErrorResponse(
-			`User ${req.user.id} is not authorized to update course ${courseId}`,
-			401
-		);
+// 	// Make sure user is product owner or admin if return ErrorResponse
+// 	if (
+// 		product.user.toString() !== currentUser.id &&
+// 		currentUser.role !== 'admin'
+// 	)
+// 		throw new ErrorResponse(
+// 			`User ${req.user.id} is not authorized to update product ${productId}`,
+// 			401
+// 		);
 
-	await course.remove();
+// 	await product.remove();
 
-	res.status(200).json({
-		success: true,
-		data: {},
-	});
-});
+// 	res.status(200).json({
+// 		success: true,
+// 		data: {},
+// 	});
+// });
