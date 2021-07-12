@@ -25,7 +25,7 @@ app.use(express.json());
 if (NODE_ENV === 'dev') app.use(morgan('dev'));
 
 app.get(`${API_URL}/products`, (req, res) => {
-	res.send('products');
+	res.status(200).json({ test: 'apples' });
 });
 
 //server listens on here
