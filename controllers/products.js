@@ -55,7 +55,7 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 //  @access   Private
 exports.updateProduct = asyncHandler(async (req, res, next) => {
 	const { productId } = { ...req.params };
-	const currentUser = req.user;
+	// const currentUser = req.user;
 	const updateProduct = req.body;
 	let product = await Product.findById(productId);
 	if (!product)
@@ -66,14 +66,14 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 		);
 
 	// Make sure user is product owner or admin if return ErrorResponse
-	if (
-		product.user.toString() !== currentUser.id &&
-		currentUser.role !== 'admin'
-	)
-		throw new ErrorResponse(
-			`User ${req.user.id} is not authorized to update product ${productId}`,
-			401
-		);
+	// if (
+	// 	product.user.toString() !== currentUser.id &&
+	// 	currentUser.role !== 'admin'
+	// )
+	// 	throw new ErrorResponse(
+	// 		`User ${req.user.id} is not authorized to update product ${productId}`,
+	// 		401
+	// 	);
 
 	product = await Product.findByIdAndUpdate(productId, updateProduct, {
 		new: true,

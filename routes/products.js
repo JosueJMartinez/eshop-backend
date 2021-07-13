@@ -3,7 +3,7 @@ const {
 	getProducts,
 	getProduct,
 	createProduct,
-	// updateProduct,
+	updateProduct,
 	// deleteProduct,
 } = require('../controllers/products');
 const Product = require('../models/Product');
@@ -11,8 +11,10 @@ const Product = require('../models/Product');
 // const { protect, authorize } = require('../middleware/auth');
 const router = express.Router({ mergeParams: true });
 
-router.route('/:productId').get(getProduct);
-// .put(protect, authorize('publisher', 'admin'), updateProduct)
+router.route('/:productId').get(getProduct).put(
+	// protect, authorize('publisher', 'admin')
+	updateProduct
+);
 // .delete(protect, authorize('publisher', 'admin'), deleteProduct);
 router
 	.route('/')
