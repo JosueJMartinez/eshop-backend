@@ -9,6 +9,7 @@ const ProductSchema = new mongoose.Schema({
 		maxLength: [50, 'Length cannot be more than 50 characters'],
 		unique: true,
 	},
+	image: { type: String },
 	description: {
 		type: String,
 		required: [true, 'Please add a product description'],
@@ -18,6 +19,7 @@ const ProductSchema = new mongoose.Schema({
 		type: Number,
 		required: [true, 'Please add a price'],
 	},
+	countInStock: { type: Number, default: 0 },
 	createdAt: {
 		type: Date,
 		default: Date.now,
