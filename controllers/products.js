@@ -4,10 +4,10 @@ const asyncHandler = require('../middleware/async');
 
 //  @desc     Get all products
 //  @route    Get /api/v1/products
-//  @route    Get /api/v1/bootcamps/:bootId/products
+//  @route    Get /api/v1/products
 //  @access   Public
 exports.getProducts = asyncHandler(async (req, res, next) => {
-	const products = await Product.find({ bootcamp: bootcampId });
+	const products = await Product.find();
 	res.status(200).json({
 		success: true,
 		count: products.length,
@@ -50,41 +50,41 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 	});
 });
 
-// //  @desc     Update Product
-// //  @route    Put /api/v1/products/:productId
-// //  @access   Private
-// exports.updateProduct = asyncHandler(async (req, res, next) => {
-// 	const { productId } = { ...req.params };
-// 	const currentUser = req.user;
-// 	const updateProduct = req.body;
-// 	let product = await Product.findById(productId);
-// 	if (!product)
-// 		throw new ErrorResponse(
-// 			`Resource not found with id of ${productId}`,
-// 			404,
-// 			productId
-// 		);
+//  @desc     Update Product
+//  @route    Put /api/v1/products/:productId
+//  @access   Private
+exports.updateProduct = asyncHandler(async (req, res, next) => {
+	const { productId } = { ...req.params };
+	const currentUser = req.user;
+	const updateProduct = req.body;
+	let product = await Product.findById(productId);
+	if (!product)
+		throw new ErrorResponse(
+			`Resource not found with id of ${productId}`,
+			404,
+			productId
+		);
 
-// 	// Make sure user is product owner or admin if return ErrorResponse
-// 	if (
-// 		product.user.toString() !== currentUser.id &&
-// 		currentUser.role !== 'admin'
-// 	)
-// 		throw new ErrorResponse(
-// 			`User ${req.user.id} is not authorized to update product ${productId}`,
-// 			401
-// 		);
+	// Make sure user is product owner or admin if return ErrorResponse
+	if (
+		product.user.toString() !== currentUser.id &&
+		currentUser.role !== 'admin'
+	)
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update product ${productId}`,
+			401
+		);
 
-// 	product = await Product.findByIdAndUpdate(productId, updateProduct, {
-// 		new: true,
-// 		runValidators: true,
-// 	});
+	product = await Product.findByIdAndUpdate(productId, updateProduct, {
+		new: true,
+		runValidators: true,
+	});
 
-// 	res.status(200).json({
-// 		success: true,
-// 		data: product,
-// 	});
-// });
+	res.status(200).json({
+		success: true,
+		data: product,
+	});
+});
 
 // //  @desc     Delete product
 // //  @route    Delete /api/v1/products/:productId

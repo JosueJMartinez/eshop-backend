@@ -3,6 +3,9 @@ const express = require('express'),
 	morgan = require('morgan'),
 	colors = require('colors');
 
+// Custom error handler for errors
+const errorHandler = require('./middleware/errorHandler');
+
 dotenv.config({ path: './configurations/config.env' });
 
 // DB Connection
@@ -27,9 +30,13 @@ app.use(express.json());
 // send logs if in development mode
 if (NODE_ENV === 'dev') app.use(morgan('dev'));
 
-app.get(`${API_URL}/products`, (req, res) => {
-	res.status(200).json({ test: 'apples' });
-});
+// ===============================================
+// Routes
+// ===============================================
+app.use(`${API_URL}/products`, products);
+
+// middleware error handling
+app.use(errorHandler);
 
 //server listens on here
 app.listen(PORT || 3000, IP || '127.0.0.1', () => {
