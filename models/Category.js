@@ -9,9 +9,16 @@ const CategorySchema = new mongoose.Schema({
 		maxLength: [50, 'Length cannot be more than 50 characters'],
 		unique: true,
 	},
-	color: { type: String, required: true },
-	icon: { type: String, required: true },
+	color: {
+		type: String,
+		required: [true, 'Please add a color for this category'],
+	},
+	icon: {
+		type: String,
+		required: [true, 'Please add an icon for category'],
+	},
 	image: { type: String, trim: true },
+	slug: String,
 });
 
 // Slugify product name
