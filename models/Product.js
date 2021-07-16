@@ -41,7 +41,7 @@ const ProductSchema = new mongoose.Schema({
 		max: [10, 'Rating must can not be more than 10'],
 	},
 	isFeatured: { type: Boolean, default: false },
-	slug: String,
+	slug: { type: String, unique: true },
 	category: {
 		type: mongoose.Schema.ObjectId,
 		ref: 'Category',

@@ -40,7 +40,7 @@ const OrderSchema = new mongoose.Schema({
 	totalPrice: {
 		type: Number,
 	},
-	User: {
+	user: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
 	},

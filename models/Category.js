@@ -18,7 +18,7 @@ const CategorySchema = new mongoose.Schema({
 		required: [true, 'Please add an icon for category'],
 	},
 	image: { type: String, trim: true },
-	slug: String,
+	slug: { type: String, unqiue: true },
 });
 
 // Slugify product name
