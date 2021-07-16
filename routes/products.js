@@ -9,7 +9,7 @@ const {
 const Product = require('../models/Product');
 // const advancedResults = require('../middleware/advancedResults');
 // const { protect, authorize } = require('../middleware/auth');
-const router = express.Router({ mergeParams: true });
+const router = express.Router();
 
 router
 	.route('/:productId')
