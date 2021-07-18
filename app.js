@@ -1,7 +1,8 @@
 const express = require('express'),
 	dotenv = require('dotenv'),
 	morgan = require('morgan'),
-	colors = require('colors');
+	colors = require('colors'),
+	cors = require('cors');
 
 // Custom error handler for errors
 const errorHandler = require('./middleware/errorHandler');
@@ -31,6 +32,9 @@ app.use(express.json());
 //================================================
 // send logs if in development mode
 if (NODE_ENV === 'dev') app.use(morgan('dev'));
+
+// Enable CORS
+app.use(cors());
 
 // ===============================================
 // Routes
