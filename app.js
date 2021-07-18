@@ -16,9 +16,11 @@ const { API_URL, NODE_ENV, PORT, IP } = { ...process.env };
 // call and connect to db connection
 connectDB();
 
-// Routes
-const products = require('./routes/products');
-
+// Routes plugins
+const products = require('./routes/products'),
+	categories = require('./routes/categories'),
+	orders = require('./routes/orders'),
+	users = require('./routes/users');
 const app = express();
 
 // Middleware
@@ -34,6 +36,9 @@ if (NODE_ENV === 'dev') app.use(morgan('dev'));
 // Routes
 // ===============================================
 app.use(`${API_URL}/products`, products);
+app.use(`${API_URL}/categories`, categories);
+app.use(`${API_URL}/orders`, orders);
+app.use(`${API_URL}/users`, users);
 
 // middleware error handling
 app.use(errorHandler);
