@@ -121,7 +121,13 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
 	// 		401
 	// 	);
 
-	await category.remove();
+	const catRemoved = await category.remove();
+	if (!catRemoved)
+		throw new ErrorResponse(
+			`Unable to delete resource with id of ${catId}`,
+			404,
+			catId
+		);
 
 	res.status(200).json({
 		success: true,
