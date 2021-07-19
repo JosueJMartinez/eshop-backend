@@ -14,7 +14,7 @@ const CategorySchema = new mongoose.Schema(
 		},
 		color: {
 			type: String,
-			required: [true, 'Please add a color for this category'],
+			// required: [true, 'Please add a color for this category'],
 		},
 		icon: {
 			type: String,

@@ -43,6 +43,9 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 	});
 	const addedCategory = await newCategory.save();
 
+	if (!addedCategory)
+		throw new ErrorResponse(`1. Category could not be created`, 404);
+
 	res.status(201).json({
 		success: true,
 		data: addedCategory,
