@@ -48,10 +48,13 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 			`Category ${req.body.category} does not exist`,
 			404
 		);
-	console.log(foundCategory);
+
+	req.body.category = foundCategory._id;
+
 	const newProduct = new Product({
 		...req.body,
 	});
+
 	const addedProduct = await newProduct.save();
 
 	if (!addedProduct)
