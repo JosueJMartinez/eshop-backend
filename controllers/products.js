@@ -1,6 +1,7 @@
-const Product = require('../models/Product');
-const ErrorResponse = require('../utils/errorResponse');
-const asyncHandler = require('../middleware/async');
+const Product = require('../models/Product'),
+	Category = require('../models/Category'),
+	ErrorResponse = require('../utils/errorResponse'),
+	asyncHandler = require('../middleware/async');
 
 //  @desc     Get all products
 //  @route    Get /api/v1/products
@@ -39,6 +40,15 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
 //  @route    Post /api/v1/products
 //  @access   Private
 exports.createProduct = asyncHandler(async (req, res, next) => {
+	const foundCategory = await Category.findOne({
+		name: req.body.category,
+	});
+	if (!foundCategory)
+		throw new ErrorResponse(
+			`Category ${req.body.category} does not exist`,
+			404
+		);
+	console.log(foundCategory);
 	const newProduct = new Product({
 		...req.body,
 	});
