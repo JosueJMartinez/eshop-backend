@@ -44,6 +44,12 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 	});
 	const addedProduct = await newProduct.save();
 
+	if (!addedProduct)
+		throw new ErrorResponse(
+			`Unable to create product please try again`,
+			500
+		);
+
 	res.status(201).json({
 		success: true,
 		data: addedProduct,
