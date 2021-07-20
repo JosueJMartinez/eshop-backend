@@ -130,8 +130,13 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 	// 		401
 	// 	);
 
-	await product.remove();
-
+	const deletedProd = await product.remove();
+	if (!deletedProd)
+		throw new ErrorResponse(
+			`Unable to delete product with id: ${productId}`,
+			500,
+			productId
+		);
 	res.status(200).json({
 		success: true,
 		data: {},
