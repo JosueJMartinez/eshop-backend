@@ -46,7 +46,7 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 	if (!foundCategory)
 		throw new ErrorResponse(
 			`Category ${req.body.category} does not exist`,
-			404
+			400
 		);
 
 	req.body.category = foundCategory._id;
