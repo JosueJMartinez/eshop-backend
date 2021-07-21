@@ -24,7 +24,13 @@ router
 	);
 router
 	.route('/')
-	.get(advancedResults(Product, 'Products'), getProducts)
+	.get(
+		advancedResults(Product, 'Products', {
+			path: 'category',
+			select: 'name icon color -_id',
+		}),
+		getProducts
+	)
 	.post(
 		// protect, authorize('publisher', 'admin'),
 		createProduct
