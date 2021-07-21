@@ -8,7 +8,9 @@ const Product = require('../models/Product'),
 //  @route    Get /api/v1/products
 //  @access   Public
 exports.getProducts = asyncHandler(async (req, res, next) => {
-	const products = await Product.find();
+	const products = await Product.find().select(
+		'name description image price brand avgRating'
+	);
 	res.status(200).json({
 		success: true,
 		count: products.length,
