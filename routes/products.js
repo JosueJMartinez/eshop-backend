@@ -7,7 +7,7 @@ const {
 	deleteProduct,
 } = require('../controllers/products');
 const Product = require('../models/Product');
-// const advancedResults = require('../middleware/advancedResults');
+const advancedResults = require('../middleware/advancedResults');
 // const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 
@@ -24,13 +24,7 @@ router
 	);
 router
 	.route('/')
-	.get(
-		// advancedResults(Product, 'Products', {
-		// 	path: 'bootcamp',
-		// 	select: 'name description',
-		// }),
-		getProducts
-	)
+	.get(advancedResults(Product, 'Products'), getProducts)
 	.post(
 		// protect, authorize('publisher', 'admin'),
 		createProduct
