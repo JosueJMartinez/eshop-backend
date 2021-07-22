@@ -1,9 +1,10 @@
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('./async');
 
-const advancedResults = (Model, model, populate) =>
+const advancedResults = input =>
 	asyncHandler(async (req, res, next) => {
 		// 	Copy req.query
+		const { Model, model, populate } = { ...input };
 		const reqQuery = { ...req.query };
 
 		// 	Fields to exclude
