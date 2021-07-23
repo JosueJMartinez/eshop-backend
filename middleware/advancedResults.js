@@ -25,74 +25,75 @@ const advancedResults = input =>
 		if (isCount) {
 			const count = await Model.countDocuments(JSON.parse(queryStr));
 
-			if (!count) throw new ErrorResponse(`Error counting here`, 400);
+			if (!count && count != 0)
+				throw new ErrorResponse(`Error counting here`, 400);
 
 			res.advancedResults = {
 				success: true,
 				count,
 			};
-			next();
-		} else {
-			// 	Find resources
-			let query = Model.find(JSON.parse(queryStr));
-
-			// Select fields do this only if select fields are present to limit selection
-			if (req.query.select) {
-				const fields = req.query.select.replace(/,/g, ' ');
-				query.select(fields);
-			}
-
-			// Sort
-			if (req.query.sort) {
-				const sortBy = req.query.sort.replace(/,/g, ' ');
-				query.sort(sortBy);
-			} else {
-				query.sort('-createAt');
-			}
-
-			if (populate) {
-				query = query.populate(populate);
-			}
-
-			// Pagination
-			const page = parseInt(req.query.page, 10) || 1;
-			const limit = parseInt(req.query.limit, 10) || 25;
-			const startIdx = limit * (page - 1);
-			const endIdx = page * limit;
-			const total = await Model.countDocuments();
-
-			query = query.skip(startIdx).limit(limit);
-
-			// 	Executing Query
-			const results = await query;
-
-			// Pagination result
-			const pagination = {};
-			if (endIdx < total) {
-				pagination.next = {
-					page: page + 1,
-					limit,
-				};
-			}
-
-			if (startIdx > 0) {
-				pagination.prev = {
-					page: page - 1,
-					limit,
-				};
-			}
-
-			if (!results.length)
-				throw new ErrorResponse(`uh oh no more ${model}`, 400);
-
-			res.advancedResults = {
-				success: true,
-				count: results.length,
-				pagination,
-				data: results,
-			};
-			next();
+			return next();
 		}
+
+		// 	Find resources
+		let query = Model.find(JSON.parse(queryStr));
+
+		// Select fields do this only if select fields are present to limit selection
+		if (req.query.select) {
+			const fields = req.query.select.replace(/,/g, ' ');
+			query.select(fields);
+		}
+
+		// Sort
+		if (req.query.sort) {
+			const sortBy = req.query.sort.replace(/,/g, ' ');
+			query.sort(sortBy);
+		} else {
+			query.sort('-createAt');
+		}
+
+		if (populate) {
+			query = query.populate(populate);
+		}
+
+		// Pagination
+		const page = parseInt(req.query.page, 10) || 1;
+		const limit = parseInt(req.query.limit, 10) || 25;
+		const startIdx = limit * (page - 1);
+		const endIdx = page * limit;
+		const total = await Model.countDocuments();
+
+		query = query.skip(startIdx).limit(limit);
+
+		// 	Executing Query
+		const results = await query;
+
+		// Pagination result
+		const pagination = {};
+		if (endIdx < total) {
+			pagination.next = {
+				page: page + 1,
+				limit,
+			};
+		}
+
+		if (startIdx > 0) {
+			pagination.prev = {
+				page: page - 1,
+				limit,
+			};
+		}
+
+		if (!results.length)
+			throw new ErrorResponse(`uh oh no more ${model}`, 400);
+
+		res.advancedResults = {
+			success: true,
+			count: results.length,
+			pagination,
+			data: results,
+		};
+		next();
 	});
 
 module.exports = advancedResults;
