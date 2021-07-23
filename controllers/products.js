@@ -142,36 +142,5 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCount = asyncHandler(async (req, res, next) => {
-	const { productId } = { ...req.params };
-	const product = await Product.findById(productId);
-	// const currentUser = req.user;
-
-	if (!product)
-		throw new ErrorResponse(
-			`Resource not found with id of ${productId}`,
-			404,
-			productId
-		);
-
-	// // Make sure user is product owner or admin if return ErrorResponse
-	// if (
-	// 	product.user.toString() !== currentUser.id &&
-	// 	currentUser.role !== 'admin'
-	// )
-	// 	throw new ErrorResponse(
-	// 		`User ${req.user.id} is not authorized to update product ${productId}`,
-	// 		401
-	// 	);
-
-	const deletedProd = await product.remove();
-	if (!deletedProd)
-		throw new ErrorResponse(
-			`Unable to delete product with id: ${productId}`,
-			500,
-			productId
-		);
-	res.status(200).json({
-		success: true,
-		data: {},
-	});
+	res.status(200).json(res.advancedResults);
 });

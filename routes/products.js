@@ -5,11 +5,20 @@ const {
 	createProduct,
 	updateProduct,
 	deleteProduct,
+	getCount,
 } = require('../controllers/products');
 const Product = require('../models/Product');
 const advancedResults = require('../middleware/advancedResults');
 // const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
+
+router.route('/getCount').get(
+	advancedResults({
+		Model: Product,
+		isCount: true,
+	}),
+	getCount
+);
 
 router
 	.route('/:productId')
@@ -22,12 +31,17 @@ router
 		// protect, authorize('publisher', 'admin'),
 		deleteProduct
 	);
+
 router
 	.route('/')
 	.get(
-		advancedResults(Product, 'Products', {
-			path: 'category',
-			select: 'name icon color -_id',
+		advancedResults({
+			Model: Product,
+			model: 'Products',
+			populate: {
+				path: 'category',
+				select: 'name icon color -_id',
+			},
 		}),
 		getProducts
 	)
