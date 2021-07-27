@@ -4,74 +4,78 @@ const mongoose = require('mongoose'),
 	crypto = require('crypto'),
 	slugify = require('slugify');
 
-const opts = { toJSON: { virtuals: true }, toObject: { virtuals: true } };
+const opts = { toJSON: { virtuals: true } };
 
-const UserSchema = new mongoose.Schema({
-	name: {
-		type: String,
-		required: [true, 'Please add a name'],
-		trim: true,
-		maxLength: [50, 'Length cannot be more than 50 characters'],
+const UserSchema = new mongoose.Schema(
+	{
+		name: {
+			type: String,
+			required: [true, 'Please add a name'],
+			trim: true,
+			maxLength: [50, 'Length cannot be more than 50 characters'],
+		},
+		username: { type: String, unique: true },
+		slug: { type: String, unique: true },
+		email: {
+			type: String,
+			required: [true, 'Please add an email'],
+			unique: true,
+			trim: true,
+			match: [
+				/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+				'Please add a valid email',
+			],
+		},
+		// role: {
+		// 	type: String,
+		// 	required: true,
+		// 	enum: ['user', 'publisher'],
+		// 	default: 'user',
+		// },
+		password: {
+			type: String,
+			required: [true, 'Please add a password'],
+			minlength: 6,
+			select: false,
+		},
+		street: {
+			type: String,
+			required: [true, 'Please add a street.'],
+			trim: true,
+		},
+		apartment: { type: String, trim: true },
+		city: {
+			type: String,
+			required: [true, 'Please add a city.'],
+			trim: true,
+		},
+		zip: {
+			type: String,
+			required: [true, 'Please add a zipcode.'],
+			trim: true,
+		},
+		country: {
+			type: String,
+			required: [true, 'Please add a country.'],
+			trim: true,
+		},
+		phone: {
+			type: String,
+			required: true,
+		},
+		isAdmin: {
+			type: Boolean,
+			default: false,
+		},
+		resetPasswordToken: String,
+		resetPasswordExpire: Date,
+		createdAt: {
+			type: Date,
+			default: Date.now,
+		},
 	},
-	username: { type: String, unique: true },
-	slug: { type: String, unique: true },
-	email: {
-		type: String,
-		required: [true, 'Please add an email'],
-		unique: true,
-		trim: true,
-		match: [
-			/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-			'Please add a valid email',
-		],
-	},
-	// role: {
-	// 	type: String,
-	// 	required: true,
-	// 	enum: ['user', 'publisher'],
-	// 	default: 'user',
-	// },
-	password: {
-		type: String,
-		required: [true, 'Please add a password'],
-		minlength: 6,
-		select: false,
-	},
-	street: {
-		type: String,
-		required: [true, 'Please add a street.'],
-		trim: true,
-	},
-	apartment: { type: String, trim: true },
-	city: {
-		type: String,
-		required: [true, 'Please add a city.'],
-		trim: true,
-	},
-	zip: {
-		type: String,
-		required: [true, 'Please add a zipcode.'],
-		trim: true,
-	},
-	country: {
-		type: String,
-		required: [true, 'Please add a country.'],
-		trim: true,
-	},
-	phone: {
-		type: Number,
-	},
-	isAdmin: {
-		type: Boolean,
-		default: false,
-	},
-	resetPasswordToken: String,
-	resetPasswordExpire: Date,
-	createdAt: {
-		type: Date,
-		default: Date.now,
-	},
-});
+	opts
+);
 
 // Slugify product name
 UserSchema.pre('save', function (next) {

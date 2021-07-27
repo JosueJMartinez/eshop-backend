@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 
-const opts = { toJSON: { virtuals: true }, toObject: { virtuals: true } };
+const opts = { toJSON: { virtuals: true } };
 
 const ProductSchema = new mongoose.Schema(
 	{

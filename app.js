@@ -21,7 +21,8 @@ connectDB();
 const products = require('./routes/products'),
 	categories = require('./routes/categories'),
 	orders = require('./routes/orders'),
-	users = require('./routes/users');
+	users = require('./routes/users'),
+	auth = require('./routes/auth');
 const app = express();
 
 // Middleware
