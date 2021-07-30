@@ -44,6 +44,7 @@ app.use(`${API_URL}/products`, products);
 app.use(`${API_URL}/categories`, categories);
 app.use(`${API_URL}/orders`, orders);
 app.use(`${API_URL}/users`, users);
+app.use(`${API_URL}/auth`, auth);
 
 // middleware error handling
 app.use(errorHandler);

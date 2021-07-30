@@ -14,12 +14,16 @@ const UserSchema = new mongoose.Schema(
 			trim: true,
 			maxLength: [50, 'Length cannot be more than 50 characters'],
 		},
-		username: { type: String, unique: true },
+		username: {
+			type: String,
+			unique: [true, 'username is already used'],
+			required: [true, 'Please add a username'],
+		},
 		slug: { type: String, unique: true },
 		email: {
 			type: String,
 			required: [true, 'Please add an email'],
-			unique: true,
+			unique: [true, 'email already used'],
 			trim: true,
 			match: [
 				/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
@@ -54,6 +58,7 @@ const UserSchema = new mongoose.Schema(
 			required: [true, 'Please add a zipcode.'],
 			trim: true,
 		},
+		state: { type: String, required: [true, 'Please add a state'] },
 		country: {
 			type: String,
 			required: [true, 'Please add a country.'],
@@ -61,7 +66,7 @@ const UserSchema = new mongoose.Schema(
 		},
 		phone: {
 			type: String,
-			required: true,
+			required: [true, 'Please add a phone number'],
 		},
 		isAdmin: {
 			type: Boolean,
