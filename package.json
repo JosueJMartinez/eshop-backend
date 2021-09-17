@@ -21,6 +21,7 @@
     "morgan": "^1.10.0",
     "nodemailer": "^6.6.3",
     "nodemon": "^2.0.10",
-    "slugify": "^1.5.3"
+    "slugify": "^1.5.3",
+    "three": "^0.131.3"
   }
 }
