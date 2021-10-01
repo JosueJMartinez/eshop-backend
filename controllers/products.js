@@ -83,14 +83,14 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 		);
 
 	// Make sure user is product owner or admin if return ErrorResponse
-	// if (
-	// 	product.user.toString() !== currentUser.id &&
-	// 	currentUser.role !== 'admin'
-	// )
-	// 	throw new ErrorResponse(
-	// 		`User ${req.user.id} is not authorized to update product ${productId}`,
-	// 		401
-	// 	);
+	if (
+		product.user.toString() !== currentUser.id &&
+		currentUser.role !== 'admin'
+	)
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update product ${productId}`,
+			401
+		);
 
 	product = await Product.findByIdAndUpdate(productId, updateProduct, {
 		new: true,
@@ -109,7 +109,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 exports.deleteProduct = asyncHandler(async (req, res, next) => {
 	const { productId } = { ...req.params };
 	const product = await Product.findById(productId);
-	// const currentUser = req.user;
+	const currentUser = req.user;
 
 	if (!product)
 		throw new ErrorResponse(
@@ -118,15 +118,15 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 			productId
 		);
 
-	// // Make sure user is product owner or admin if return ErrorResponse
-	// if (
-	// 	product.user.toString() !== currentUser.id &&
-	// 	currentUser.role !== 'admin'
-	// )
-	// 	throw new ErrorResponse(
-	// 		`User ${req.user.id} is not authorized to update product ${productId}`,
-	// 		401
-	// 	);
+	// Make sure user is product owner or admin if return ErrorResponse
+	if (
+		product.user.toString() !== currentUser.id &&
+		currentUser.role !== 'admin'
+	)
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update product ${productId}`,
+			401
+		);
 
 	const deletedProd = await product.remove();
 	if (!deletedProd)
@@ -141,6 +141,9 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 	});
 });
 
+//  @desc     Get count of number of products
+//  @route    Get /api/v1/products/getCount
+//  @access   Public
 exports.getCount = asyncHandler(async (req, res, next) => {
 	res.status(200).json(res.advancedResults);
 });
