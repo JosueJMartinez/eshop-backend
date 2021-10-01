@@ -30,12 +30,12 @@ const UserSchema = new mongoose.Schema(
 				'Please add a valid email',
 			],
 		},
-		// role: {
-		// 	type: String,
-		// 	required: true,
-		// 	enum: ['user', 'publisher'],
-		// 	default: 'user',
-		// },
+		role: {
+			type: String,
+			required: true,
+			enum: ['user', 'publisher'],
+			default: 'user',
+		},
 		password: {
 			type: String,
 			required: [true, 'Please add a password'],
@@ -68,10 +68,10 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			required: [true, 'Please add a phone number'],
 		},
-		isAdmin: {
-			type: Boolean,
-			default: false,
-		},
+		// isAdmin: {
+		// 	type: Boolean,
+		// 	default: false,
+		// },
 		resetPasswordToken: String,
 		resetPasswordExpire: Date,
 		createdAt: {

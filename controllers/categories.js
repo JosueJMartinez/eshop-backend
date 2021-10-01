@@ -7,12 +7,7 @@ const asyncHandler = require('../middleware/async');
 //  @route    Get /api/v1/categories
 //  @access   Public
 exports.getCategories = asyncHandler(async (req, res, next) => {
-	const categories = await Category.find();
-	res.status(200).json({
-		success: true,
-		count: categories.length,
-		data: categories,
-	});
+	res.status(200).json(res.advancedResults);
 });
 
 //  @desc     Get one category
@@ -21,7 +16,7 @@ exports.getCategories = asyncHandler(async (req, res, next) => {
 exports.getCategory = asyncHandler(async (req, res, next) => {
 	const { catId } = { ...req.params };
 	const category = await Category.findById(catId).populate({
-		path: 'categories',
+		path: 'products',
 		select: 'name',
 	});
 
@@ -40,6 +35,7 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
 exports.createCategory = asyncHandler(async (req, res, next) => {
 	const newCategory = new Category({
 		...req.body,
+		user: req.user,
 	});
 	const addedCategory = await newCategory.save();
 
@@ -57,7 +53,7 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 //  @access   Private
 exports.updateCategory = asyncHandler(async (req, res, next) => {
 	const { catId } = { ...req.params };
-	// const currentUser = req.user;
+	const currentUser = req.user;
 	const updateCategory = req.body;
 	let category = await Category.findById(catId);
 	if (!category)
@@ -68,14 +64,14 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 		);
 
 	// Make sure user is category owner or admin if return ErrorResponse
-	// if (
-	// 	category.user.toString() !== currentUser.id &&
-	// 	currentUser.role !== 'admin'
-	// )
-	// 	throw new ErrorResponse(
-	// 		`User ${req.user.id} is not authorized to update category ${catId}`,
-	// 		401
-	// 	);
+	if (
+		category.user.toString() !== currentUser.id &&
+		currentUser.role !== 'admin'
+	)
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update category ${catId}`,
+			401
+		);
 	for (let prop in updateCategory) {
 		category[prop] = updateCategory[prop];
 	}
@@ -102,7 +98,7 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 exports.deleteCategory = asyncHandler(async (req, res, next) => {
 	const { catId } = { ...req.params };
 	const category = await Category.findById(catId);
-	// const currentUser = req.user;
+	const currentUser = req.user;
 
 	if (!category)
 		throw new ErrorResponse(
@@ -111,15 +107,15 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
 			catId
 		);
 
-	// // Make sure user is category owner or admin if return ErrorResponse
-	// if (
-	// 	category.user.toString() !== currentUser.id &&
-	// 	currentUser.role !== 'admin'
-	// )
-	// 	throw new ErrorResponse(
-	// 		`User ${req.user.id} is not authorized to update category ${catId}`,
-	// 		401
-	// 	);
+	// Make sure user is category owner or admin if return ErrorResponse
+	if (
+		category.user.toString() !== currentUser.id &&
+		currentUser.role !== 'admin'
+	)
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update category ${catId}`,
+			401
+		);
 
 	const catRemoved = await category.remove();
 	if (!catRemoved)

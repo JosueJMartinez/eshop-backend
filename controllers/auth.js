@@ -55,15 +55,15 @@ exports.logout = asyncHandler(async (req, res, next) => {
 	res.status(200).json({ success: true, data: {} });
 });
 
-// //  @desc     Get Current User
-// //  @route    Get /api/v1/auth/me
-// //  @access   Private
-// exports.getCurrentUser = asyncHandler(async (req, res, next) => {
-// 	const { user } = { ...req };
-// 	if (!user)
-// 		throw new ErrorResponse('Current logged in user not found', 401);
-// 	res.status(200).json({ success: true, data: user });
-// });
+//  @desc     Get Current User
+//  @route    Get /api/v1/auth/me
+//  @access   Private
+exports.getCurrentUser = asyncHandler(async (req, res, next) => {
+	const { user } = { ...req };
+	if (!user)
+		throw new ErrorResponse('Current logged in user not found', 401);
+	res.status(200).json({ success: true, data: user });
+});
 
 // //  @desc     Update user details
 // //  @route    Put /api/v1/auth/updateMe
