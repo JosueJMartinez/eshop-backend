@@ -2,6 +2,7 @@ const express = require('express'),
 	dotenv = require('dotenv'),
 	morgan = require('morgan'),
 	colors = require('colors'),
+	cookieParser = require('cookie-parser'),
 	cors = require('cors');
 
 // Custom error handler for errors
@@ -33,6 +34,9 @@ app.use(express.json());
 //================================================
 // send logs if in development mode
 if (NODE_ENV === 'dev') app.use(morgan('dev'));
+
+// Cookieparser middleware
+app.use(cookieParser());
 
 // Enable CORS
 app.use(cors());
