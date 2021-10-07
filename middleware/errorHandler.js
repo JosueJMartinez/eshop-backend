@@ -32,12 +32,13 @@ function errorHandler(err, req, res, next) {
 		error = new ErrorResponse(`Please log in again`, 401);
 
 	// Server Console log errors
-	if (error.statusCode === 404)
+	if (error.statusCode === 404) {
+		error.message = `404 error getting resource with id: ${err.value}`;
 		console.log(
 			`404 error getting resource with id: ${err.value}`.yellow.underline
 				.bold
 		);
-	else
+	} else
 		console.log(
 			`${error.message}: ${error.statusCode}`.red.underline.bold
 		);
