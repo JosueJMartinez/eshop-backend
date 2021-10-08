@@ -9,9 +9,7 @@ const crypto = require('crypto');
 //  @access   Public
 exports.register = asyncHandler(async (req, res, next) => {
 	// Create user
-	const user = await User.create({
-		...req.body,
-	});
+	const user = await User.create(req.body);
 
 	sendTokenResponse(user, 200, res);
 });
@@ -66,8 +64,7 @@ exports.getCurrentUser = asyncHandler(async (req, res, next) => {
 //  @access   Private
 exports.updateUser = asyncHandler(async (req, res, next) => {
 	let { user } = { ...req };
-	user = await User.findByIdAndUpdate(user.id, { ...req.body });
-
+	user = await User.findByIdAndUpdate(user.id, req.body, { new: true });
 	user = await user.save();
 	res.status(200).json({ success: true, data: user });
 });

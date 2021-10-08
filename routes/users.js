@@ -1,31 +1,23 @@
 const express = require('express');
-const { getUsers } = require('../controllers/users');
+const {
+	getUser,
+	getUsers,
+	createUser,
+	deleteUser,
+	updateUser,
+} = require('../controllers/users');
 const User = require('../models/User');
-// const advancedResults = require('../middleware/advancedResults');
-// const { protect, authorize } = require('../middleware/auth');
+const advancedResults = require('../middleware/advancedResults');
+const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 
-// router
-// 	.route('/:productId')
-// 	.get(getUser)
-// 	.put(
-// 		// protect, authorize('publisher', 'admin'),
-// 		updateUser
-// 	)
-// .delete(
-// 	// protect, authorize('publisher', 'admin'),
-// 	deleteUser
-// );
-router.route('/').get(
-	// advancedResults(User, 'Categories', {
-	// 	path: 'bootcamp',
-	// 	select: 'name description',
-	// }),
-	getUsers
-);
-// .post(
-// 	// protect, authorize('publisher', 'admin'),
-// 	createUser
-// );
+router.use(protect);
+router.use(authorize('admin'));
+
+router.route('/:userId').get(getUser).put(updateUser).delete(deleteUser);
+router
+	.route('/')
+	.get(advancedResults(User, 'Users'), getUsers)
+	.post(createUser);
 
 module.exports = router;
