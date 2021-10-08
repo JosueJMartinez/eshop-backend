@@ -17,7 +17,7 @@ router.use(authorize('admin'));
 router.route('/:userId').get(getUser).put(updateUser).delete(deleteUser);
 router
 	.route('/')
-	.get(advancedResults(User, 'Users'), getUsers)
+	.get(advancedResults({ Model: User, model: 'Users' }), getUsers)
 	.post(createUser);
 
 module.exports = router;

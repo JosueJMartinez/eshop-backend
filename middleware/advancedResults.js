@@ -4,15 +4,14 @@ const asyncHandler = require('./async');
 const advancedResults = input =>
 	asyncHandler(async (req, res, next) => {
 		// 	Copy req.query
-		const { Model, model, populate, isCount } = { ...input };
+		const { Model, model, populate } = { ...input };
 		const reqQuery = { ...req.query };
-
+		console.log(reqQuery);
 		// 	Fields to exclude
-		const removeFields = ['select', 'sort', 'page', 'limit'];
+		const removeFields = ['select', 'sort', 'page', 'limit', 'isCount'];
 
 		// 	Loop over removeFields and delete them from the reqQuery
 		removeFields.forEach(param => delete reqQuery[param]);
-
 		// 	Create query string`
 		let queryStr = JSON.stringify(reqQuery);
 
@@ -21,8 +20,8 @@ const advancedResults = input =>
 			/\b(gt|gte|lt|lte|in)\b/g,
 			match => `$${match}`
 		);
-
-		if (isCount) {
+		// console.log(`isCount: ${isCount}`);
+		if (req.query.isCount) {
 			const count = await Model.countDocuments(JSON.parse(queryStr));
 
 			if (!count && count != 0)

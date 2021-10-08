@@ -3,6 +3,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const sendEmail = require('../utils/sendEmail');
 const crypto = require('crypto');
+const checkForPassword = require('../utils/checkForPassword');
 
 //  @desc     Register User
 //  @route    Post /api/v1/auth/register
@@ -63,6 +64,8 @@ exports.getCurrentUser = asyncHandler(async (req, res, next) => {
 //  @route    Put /api/v1/auth/updateMe
 //  @access   Private
 exports.updateUser = asyncHandler(async (req, res, next) => {
+	checkForPassword(req.body.password);
+
 	let { user } = { ...req };
 	user = await User.findByIdAndUpdate(user.id, req.body, { new: true });
 	user = await user.save();
