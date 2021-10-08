@@ -6,7 +6,6 @@ const advancedResults = input =>
 		// 	Copy req.query
 		const { Model, model, populate } = { ...input };
 		const reqQuery = { ...req.query };
-		console.log(reqQuery);
 		// 	Fields to exclude
 		const removeFields = ['select', 'sort', 'page', 'limit', 'isCount'];
 
@@ -20,7 +19,6 @@ const advancedResults = input =>
 			/\b(gt|gte|lt|lte|in)\b/g,
 			match => `$${match}`
 		);
-		// console.log(`isCount: ${isCount}`);
 		if (req.query.isCount) {
 			const count = await Model.countDocuments(JSON.parse(queryStr));
 
