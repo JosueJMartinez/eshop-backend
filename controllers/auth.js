@@ -4,11 +4,13 @@ const asyncHandler = require('../middleware/async');
 const sendEmail = require('../utils/sendEmail');
 const crypto = require('crypto');
 const checkForPassword = require('../utils/checkForPassword');
+const checkForAdmin = require('../utils/checkForAdmin');
 
 //  @desc     Register User
 //  @route    Post /api/v1/auth/register
 //  @access   Public
 exports.register = asyncHandler(async (req, res, next) => {
+	checkForAdmin(req.body.role, 'create');
 	// Create user
 	const user = await User.create(req.body);
 
@@ -65,7 +67,7 @@ exports.getCurrentUser = asyncHandler(async (req, res, next) => {
 //  @access   Private
 exports.updateUser = asyncHandler(async (req, res, next) => {
 	checkForPassword(req.body.password);
-
+	checkForAdmin(req.body.role, 'update');
 	let { user } = { ...req };
 	user = await User.findByIdAndUpdate(user.id, req.body, { new: true });
 	user = await user.save();
