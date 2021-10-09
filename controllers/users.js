@@ -2,6 +2,7 @@ const User = require('../models/User');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const checkForPassword = require('../utils/checkForPassword');
+const checkFor = require('../utils/checkFor');
 
 //  @desc     Get all users
 //  @route    Get /api/v1/auth/users
@@ -30,7 +31,12 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 //  @route    Put /api/v1/auth/users/:userId
 //  @access   Private/Admin
 exports.updateUser = asyncHandler(async (req, res, next) => {
-	checkForPassword(req.body.password);
+	// while updating user check make sure password is not being updated
+	checkFor(
+		req.body.password,
+		'Cannot update since old password was not validated',
+		422
+	);
 
 	const { userId } = { ...req.params };
 	const updateUser = req.body;
