@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken'),
 	asyncHandler = require('./async'),
 	ErrorResponse = require('../utils/errorResponse'),
-	User = require('../models/User');
+	User = require('../models/User'),
+	redisClient = require('../configurations/redis');
 
 // Protect routes
 exports.protect = asyncHandler(async (req, res, next) => {
@@ -11,11 +12,21 @@ exports.protect = asyncHandler(async (req, res, next) => {
 		req.headers.authorization.startsWith('Bearer')
 	)
 		token = req.headers.authorization.split(' ')[1];
-	else if (req.cookies.token) token = req.cookies.token;
+	// else if (req.cookies.token) token = req.cookies.token;
 
 	// Make sure token exists
 	if (!token) throw new ErrorResponse('Not authorized', 401);
+	// decode token then use id from decode to find user and assign it
+
+	// check if token is blacklisted
+	const result = await redisClient.lrange('token', 0, 99999999);
+	// console.log(result);
+	if (result.indexOf(token) > -1) {
+		throw new ErrorResponse('Need to login', 401);
+	}
+
 	const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
 	req.user = await User.findById(decoded.id);
 	if (!req.user)
 		throw new ErrorResponse(

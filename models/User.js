@@ -68,10 +68,10 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			required: [true, 'Please add a phone number'],
 		},
-		// isAdmin: {
-		// 	type: Boolean,
-		// 	default: false,
-		// },
+		isFeatured: {
+			type: Boolean,
+			default: false,
+		},
 		resetPasswordToken: String,
 		resetPasswordExpire: Date,
 		createdAt: {

@@ -1,9 +1,10 @@
-const User = require('../models/User');
-const ErrorResponse = require('../utils/errorResponse');
-const asyncHandler = require('../middleware/async');
-const sendEmail = require('../utils/sendEmail');
-const crypto = require('crypto');
-const checkFor = require('../utils/checkFor');
+const User = require('../models/User'),
+	ErrorResponse = require('../utils/errorResponse'),
+	asyncHandler = require('../middleware/async'),
+	sendEmail = require('../utils/sendEmail'),
+	crypto = require('crypto'),
+	checkFor = require('../utils/checkFor'),
+	redisClient = require('../configurations/redis');
 
 //  @desc     Register User
 //  @route    Post /api/v1/auth/register
@@ -53,7 +54,14 @@ exports.login = asyncHandler(async (req, res, next) => {
 //  @route    Get /api/v1/auth/logout
 //  @access   Private
 exports.logout = asyncHandler(async (req, res, next) => {
-	res.clearCookie('token').json({ success: true, data: {} });
+	const token = req.headers.authorization.split(' ')[1];
+	await redisClient.LPUSH('token', token);
+	return res.status(200).json({
+		success: true,
+		status: 200,
+		data: 'You are logged out',
+	});
+	// res.clearCookie('token').json({ success: true, data: {} });
 });
 
 //  @desc     Get Current User
@@ -196,17 +204,17 @@ const sendTokenResponse = (user, statusCode, res) => {
 	// Create token
 	const token = user.getSignedJwtToken();
 
-	const options = {
-		expires: new Date(
-			Date.now() + process.env.JWT_COOKIE_EXP * 24 * 60 * 60 * 1000
-		),
-		httpOnly: true,
-	};
+	// const options = {
+	// 	expires: new Date(
+	// 		Date.now() + process.env.JWT_COOKIE_EXP * 24 * 60 * 60 * 1000
+	// 	),
+	// 	httpOnly: true,
+	// };
 
-	if (process.env.NODE_ENV === 'production') options.secure = true;
+	// if (process.env.NODE_ENV === 'production') options.secure = true;
 
 	res
 		.status(statusCode)
-		.cookie('token', token, options)
+		// .cookie('token', token, options)
 		.json({ success: true, token });
 };

@@ -2,6 +2,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const _ = require('lodash');
 
 function errorHandler(err, req, res, next) {
+	if (process.env.ENVIRONMENT === 'dev') console.log(err);
 	let error = { ...err };
 	error.message = err.message;
 	if (err.name === 'CastError')
