@@ -1,6 +1,6 @@
 const dotenv = require('dotenv'),
-	redis = require('async-redis'), // ES6 +
-	{ exec } = require('child_process'); // to start the redis database in development
+	redis = require('async-redis'); // ES6 +
+// { exec } = require('child_process'); // to start the redis database in development
 /*// for windows user import {execFile} from 'child_process';        
 // for ES5 users
 const redis = require('redis')*/
