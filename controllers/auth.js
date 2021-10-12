@@ -54,37 +54,15 @@ exports.login = asyncHandler(async (req, res, next) => {
 //  @route    Get /api/v1/auth/logout
 //  @access   Private
 exports.logout = asyncHandler(async (req, res, next) => {
-	// const token = req.headers.authorization.split(' ')[1];
-	const { userId, token, tokenExp } = req;
-	// check blackList if there is a userId
-	const data = await redisClient.get(userId);
-	// if there is add a new token to blacklist to that array of userId and logout
-	if (data !== null) {
-		const parsedData = JSON.parse(data);
-		parsedData[userId].push(token);
-		await redisClient.setex(userId, 3600, JSON.stringify(parsedData));
-		return res.status(200).json({
-			success: true,
-			message: 'Logout successful',
-		});
-	}
-	// if userId is not in the blacklist create a new blacklist for that userId, add it, and log out
-	const blacklistData = {
-		[userId]: [token],
-	};
-	await redisClient.setex(userId, 3600, JSON.stringify(blacklistData));
-	// redisClient.setex()
-	return res.status(200).send({
-		success: true,
-		message: 'Logout successful',
-	});
-	// await redisClient.LPUSH('token', token);
-	// return res.status(200).json({
-	// 	success: true,
+	const { token, tokenExp } = req;
 
-	// 	data: 'You are logged out',
-	// });
-	// res.clearCookie('token').json({ success: true, data: {} });
+	//	Use the set method provided by Redis to insert the token
+	//  Note: the format being used is to combine 'blacklist_' as a prefix to the token and use it as the key and a boolean, true, as the value. We also set the expiration time for the key in Redis to the same expiration time of the token itself as stated above
+
+	console.log(`exp: ${tokenExp}`);
+	redisClient.setex(`blacklist_${token}`, tokenExp, true);
+
+	res.clearCookie('token').json({ success: true, data: {} });
 });
 
 //  @desc     Get Current User

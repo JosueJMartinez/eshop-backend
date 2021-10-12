@@ -20,24 +20,22 @@ exports.protect = asyncHandler(async (req, res, next) => {
 	// decode token then use id from decode
 	const decoded = jwt.verify(token, process.env.JWT_SECRET);
 	const userId = decoded.id;
-
+	// ==============================================
 	// check if token is blacklisted first
-	const data = await redisClient.get(userId);
+	// ===============================================
+	const data = await redisClient.get(`blacklist_${token}`);
+	// if it is on the blacklist tell user to relogin
 	if (data !== null) {
-		const parsedData = JSON.parse(data);
-		if (parsedData[userId].includes(token)) {
-			throw new ErrorResponse('You need to login', 401);
-		}
+		throw new ErrorResponse('You need to login', 401);
 	}
-	// const result = await redisClient.lrange('token', 0, 99999999);
-	// console.log(result);
-	// if (result.indexOf(token) > -1) {
-	// 	throw new ErrorResponse('Need to login', 401);
-	// }
 
 	// next check make sure user exists in the database if does assign necessary values to req
 	req.user = await User.findById(userId);
-	req.tokenExp = decoded.exp;
+
+	// here we get token expiration which sec since Epoch
+	// and subtract date.now since Epoch in seconds
+	// to get the time of how much to live in the blacklist
+	req.tokenExp = decoded.exp - Math.round(Date.now() / 1000) + 1;
 	req.token = token;
 	req.userId = userId;
 	if (!req.user)
