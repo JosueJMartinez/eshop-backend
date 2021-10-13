@@ -12,14 +12,6 @@ const advancedResults = require('../middleware/advancedResults');
 const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 
-router.route('/getCount').get(
-	advancedResults({
-		Model: Product,
-		isCount: true,
-	}),
-	getCount
-);
-
 router
 	.route('/:productId')
 	.get(getProduct)

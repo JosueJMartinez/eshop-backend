@@ -137,10 +137,3 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 		data: {},
 	});
 });
-
-//  @desc     Get count of number of products
-//  @route    Get /api/v1/products/getCount
-//  @access   Public
-exports.getCount = asyncHandler(async (req, res, next) => {
-	res.status(200).json(res.advancedResults);
-});

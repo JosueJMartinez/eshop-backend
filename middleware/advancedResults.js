@@ -7,7 +7,7 @@ const advancedResults = input =>
 		const { Model, model, populate } = { ...input };
 		const reqQuery = { ...req.query };
 		// 	Fields to exclude
-		const removeFields = ['select', 'sort', 'page', 'limit', 'isCount'];
+		const removeFields = ['select', 'sort', 'page', 'limit', 'getCount'];
 
 		// 	Loop over removeFields and delete them from the reqQuery
 		removeFields.forEach(param => delete reqQuery[param]);
@@ -19,7 +19,7 @@ const advancedResults = input =>
 			/\b(gt|gte|lt|lte|in)\b/g,
 			match => `$${match}`
 		);
-		if (req.query.isCount) {
+		if (req.query.getCount) {
 			const count = await Model.countDocuments(JSON.parse(queryStr));
 
 			if (!count && count != 0)

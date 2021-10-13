@@ -13,7 +13,6 @@ exports.protect = asyncHandler(async (req, res, next) => {
 		req.headers.authorization.startsWith('Bearer')
 	)
 		token = req.headers.authorization.split(' ')[1];
-	// else if (req.cookies.token) token = req.cookies.token;
 
 	// Make sure token exists
 	if (!token) throw new ErrorResponse('Not authorized', 401);
@@ -35,7 +34,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 	// here we get token expiration which sec since Epoch
 	// and subtract date.now since Epoch in seconds
 	// to get the time of how much to live in the blacklist
-	req.tokenExp = decoded.exp - Math.round(Date.now() / 1000) + 1;
+	req.tokenExp = decoded.exp - Math.round(Date.now() / 1000);
 	req.token = token;
 	req.userId = userId;
 	if (!req.user)

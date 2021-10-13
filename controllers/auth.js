@@ -62,7 +62,7 @@ exports.logout = asyncHandler(async (req, res, next) => {
 	console.log(`exp: ${tokenExp}`);
 	redisClient.setex(`blacklist_${token}`, tokenExp, true);
 
-	res.clearCookie('token').json({ success: true, data: {} });
+	res.json({ success: true, data: {} });
 });
 
 //  @desc     Get Current User
@@ -205,17 +205,5 @@ const sendTokenResponse = (user, statusCode, res) => {
 	// Create token
 	const token = user.getSignedJwtToken();
 
-	// const options = {
-	// 	expires: new Date(
-	// 		Date.now() + process.env.JWT_COOKIE_EXP * 24 * 60 * 60 * 1000
-	// 	),
-	// 	httpOnly: true,
-	// };
-
-	// if (process.env.NODE_ENV === 'production') options.secure = true;
-
-	res
-		.status(statusCode)
-		// .cookie('token', token, options)
-		.json({ success: true, token });
+	res.status(statusCode).json({ success: true, token });
 };
