@@ -59,7 +59,6 @@ exports.logout = asyncHandler(async (req, res, next) => {
 	//	Use the set method provided by Redis to insert the token
 	//  Note: the format being used is to combine 'blacklist_' as a prefix to the token and use it as the key and a boolean, true, as the value. We also set the expiration time for the key in Redis to the same expiration time of the token itself as stated above
 
-	console.log(`exp: ${tokenExp}`);
 	redisClient.setex(`blacklist_${token}`, tokenExp, true);
 
 	res.json({ success: true, data: {} });

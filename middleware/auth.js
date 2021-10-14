@@ -19,12 +19,14 @@ exports.protect = asyncHandler(async (req, res, next) => {
 	// decode token then use id from decode
 	const decoded = jwt.verify(token, process.env.JWT_SECRET);
 	const userId = decoded.id;
+
 	// ==============================================
 	// check if token is blacklisted first
 	// ===============================================
 	const data = await redisClient.get(`blacklist_${token}`);
+
 	// if it is on the blacklist tell user to relogin
-	if (data !== null) {
+	if (data) {
 		throw new ErrorResponse('You need to login', 401);
 	}
 
