@@ -56,10 +56,18 @@ exports.login = asyncHandler(async (req, res, next) => {
 exports.logout = asyncHandler(async (req, res, next) => {
 	const { token, tokenExp } = req;
 
-	//	Use the set method provided by Redis to insert the token
-	//  Note: the format being used is to combine 'blacklist_' as a prefix to the token and use it as the key and a boolean, true, as the value. We also set the expiration time for the key in Redis to the same expiration time of the token itself as stated above
-
-	redisClient.setex(`blacklist_${token}`, tokenExp, true);
+	// Use the set method provided by Redis to insert the token
+	// Note: the format being used is to combine 'blacklist_' as
+	// a prefix to the token and use it as the key and a boolean,
+	// true, as the value.
+	// Here we calculate token expiration which is in seconds since Epoch
+	// and subtract date.now since Epoch in seconds
+	// to get the time of how much to live in the blacklist in seconds.
+	await redisClient.setex(
+		`blacklist_${token}`,
+		tokenExp - Math.round(Date.now() / 1000), // Caculate how much in seconds
+		true
+	);
 
 	res.json({ success: true, data: {} });
 });

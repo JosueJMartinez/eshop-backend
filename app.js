@@ -56,8 +56,9 @@ app.use(errorHandler);
 //server listens on here
 app.listen(PORT || 3000, IP || '127.0.0.1', () => {
 	console.log(
-		`E-commerce App started on port: ${(PORT || '3000').blue} at IP: ${
-			(IP || '127.0.0.1').blue
-		}`.magenta
+		`E-commerce App started on port: ${
+			(PORT || '3000').blue.bold.underline
+		} ${'at IP:'.magenta} ${(IP || '127.0.0.1').blue.bold.underline}`
+			.magenta
 	);
 });

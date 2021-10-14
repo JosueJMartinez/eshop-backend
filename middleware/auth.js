@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken'),
 	User = require('../models/User'),
 	redisClient = require('../configurations/redis');
 
-// Protect routes
+// Protect middleware
 exports.protect = asyncHandler(async (req, res, next) => {
 	let token;
 
@@ -23,22 +23,20 @@ exports.protect = asyncHandler(async (req, res, next) => {
 	// ==============================================
 	// check if token is blacklisted first
 	// ===============================================
+
+	// look for it in the Redis Database
 	const data = await redisClient.get(`blacklist_${token}`);
 
 	// if it is on the blacklist tell user to relogin
-	if (data) {
-		throw new ErrorResponse('You need to login', 401);
-	}
+	if (data) throw new ErrorResponse('You need to login', 401);
 
 	// next check make sure user exists in the database if does assign necessary values to req
 	req.user = await User.findById(userId);
 
-	// here we get token expiration which sec since Epoch
-	// and subtract date.now since Epoch in seconds
-	// to get the time of how much to live in the blacklist
-	req.tokenExp = decoded.exp - Math.round(Date.now() / 1000);
+	// We pass the token and tokenExp along in the req for logout
+	req.tokenExp = decoded.exp;
 	req.token = token;
-	req.userId = userId;
+
 	if (!req.user)
 		throw new ErrorResponse(
 			'Uh oh something went wrong logged in user not found',
