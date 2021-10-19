@@ -32,7 +32,7 @@ router
 			model: 'Products',
 			populate: {
 				path: 'category',
-				select: 'name icon color -_id',
+				select: 'name icon',
 			},
 		}),
 		getProducts

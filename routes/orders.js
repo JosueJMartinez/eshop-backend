@@ -1,8 +1,8 @@
 const express = require('express');
-const { getOrders } = require('../controllers/orders');
+const { getOrders, createOrder } = require('../controllers/orders');
 const Order = require('../models/Order');
-// const advancedResults = require('../middleware/advancedResults');
-// const { protect, authorize } = require('../middleware/auth');
+const advancedResults = require('../middleware/advancedResults');
+const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 
 // router
@@ -16,16 +16,15 @@ const router = express.Router();
 // 	// protect, authorize('publisher', 'admin'),
 // 	deleteOrder
 // );
-router.route('/').get(
-	// advancedResults(Order, 'Categories', {
-	// 	path: 'bootcamp',
-	// 	select: 'name description',
-	// }),
-	getOrders
-);
-// .post(
-// 	// protect, authorize('publisher', 'admin'),
-// 	createOrder
-// );
+router
+	.route('/')
+	.get(
+		// advancedResults(Order, '', {
+		// 	path: 'bootcamp',
+		// 	select: 'name description',
+		// }),
+		getOrders
+	)
+	.post(protect, authorize('user', 'publisher', 'admin'), createOrder);
 
 module.exports = router;
