@@ -25,6 +25,6 @@ router
 		// }),
 		getOrders
 	)
-	.post(protect, authorize('user', 'publisher', 'admin'), createOrder);
+	.post(protect, createOrder);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
+const OrderItem = require('../models/OrderItem');
 
 //  @desc     Get all orders
 //  @route    Get /api/v1/orders
@@ -18,15 +19,35 @@ exports.getOrders = asyncHandler(async (req, res, next) => {
 //  @route    Post /api/v1/orders
 //  @access   Private
 exports.createOrder = asyncHandler(async (req, res, next) => {
-	console.log(req.user);
-	// const newOrder = new Order({
-	// 	...req.body,
-	// 	user: req.user,
-	// });
-	// const addedOrder = await newOrder.save();
+	req.body.phone = parseInt(req.body.phone.replace(/[^0-9]/g, ''), 10);
+	const { orderItems, shippingAddress1, shippingAddress2, city, zip, country, phone } = req.body;
+	let orderItemIds = Promise.all(
+		orderItems.map(async orderItem => {
+			let newOrderItem = new OrderItem({
+				quantity: orderItem.quantity,
+				product: orderItem.product,
+			});
 
-	// if (!addedOrder)
-	// 	throw new ErrorResponse(`1. Order could not be created`, 404);
+			newOrderItem = await newOrderItem.save();
+			return newOrderItem._id;
+		})
+	);
+
+	orderItemIds = await orderItemIds;
+
+	const newOrder = new Order({
+		shippingAddress1,
+		shippingAddress2,
+		city,
+		zip,
+		country,
+		phone,
+		user: req.user,
+		orderItems: orderItemIds,
+	});
+	const addedOrder = await newOrder.save();
+
+	if (!addedOrder) throw new ErrorResponse(`1. Order could not be created`, 404);
 
 	res.status(201).json({
 		success: true,
