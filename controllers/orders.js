@@ -20,14 +20,14 @@ exports.getOrders = asyncHandler(async (req, res, next) => {
 //  @access   Private
 exports.createOrder = asyncHandler(async (req, res, next) => {
 	req.body.phone = parseInt(req.body.phone.replace(/[^0-9]/g, ''), 10);
-	const { orderItems, shippingAddress1, shippingAddress2, city, zip, country, phone } = req.body;
+	const { orderItems, shippingAddress1, shippingAddress2, city, zip, country, phone, totalPrice } =
+		req.body;
 	let orderItemIds = Promise.all(
 		orderItems.map(async orderItem => {
 			let newOrderItem = new OrderItem({
 				quantity: orderItem.quantity,
 				product: orderItem.product,
 			});
-
 			newOrderItem = await newOrderItem.save();
 			return newOrderItem._id;
 		})
@@ -42,8 +42,9 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
 		zip,
 		country,
 		phone,
-		user: req.user,
+		user: req.user._id,
 		orderItems: orderItemIds,
+		totalPrice,
 	});
 	const addedOrder = await newOrder.save();
 
@@ -51,6 +52,6 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
 
 	res.status(201).json({
 		success: true,
-		// data: addedOrder,
+		data: addedOrder,
 	});
 });
