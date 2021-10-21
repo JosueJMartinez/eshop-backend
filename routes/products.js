@@ -30,10 +30,12 @@ router
 		advancedResults({
 			Model: Product,
 			model: 'Products',
-			populate: {
-				path: 'category',
-				select: 'name icon',
-			},
+			popArray: [
+				{
+					path: 'category',
+					select: 'name icon',
+				},
+			],
 		}),
 		getProducts
 	)

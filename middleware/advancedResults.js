@@ -4,7 +4,7 @@ const asyncHandler = require('./async');
 const advancedResults = input =>
 	asyncHandler(async (req, res, next) => {
 		// 	Copy req.query
-		const { Model, model, populate } = { ...input };
+		const { Model, model, popArray } = { ...input };
 		const reqQuery = { ...req.query };
 		// 	Fields to exclude
 		const removeFields = ['select', 'sort', 'page', 'limit', 'getCount'];
@@ -15,15 +15,11 @@ const advancedResults = input =>
 		let queryStr = JSON.stringify(reqQuery);
 
 		// 	Create operators ($gt, $gte, etc)
-		queryStr = queryStr.replace(
-			/\b(gt|gte|lt|lte|in)\b/g,
-			match => `$${match}`
-		);
+		queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 		if (req.query.getCount) {
 			const count = await Model.countDocuments(JSON.parse(queryStr));
 
-			if (!count && count != 0)
-				throw new ErrorResponse(`Error counting here`, 400);
+			if (!count && count != 0) throw new ErrorResponse(`Error counting here`, 400);
 
 			res.advancedResults = {
 				success: true,
@@ -49,9 +45,14 @@ const advancedResults = input =>
 			query.sort('-createAt');
 		}
 
-		if (populate) {
-			query = query.populate(populate);
+		if (popArray) {
+			popArray.map(pop => {
+				console.log(pop);
+				query = query.populate(pop);
+			});
+			// query = query.populate(populate);
 		}
+		console.log(query._mongooseOptions.populate);
 
 		// Pagination
 		const page = parseInt(req.query.page, 10) || 1;
@@ -81,8 +82,7 @@ const advancedResults = input =>
 			};
 		}
 
-		if (!results.length)
-			throw new ErrorResponse(`uh oh no more ${model}`, 400);
+		if (!results.length) throw new ErrorResponse(`uh oh no more ${model}`, 400);
 
 		res.advancedResults = {
 			success: true,

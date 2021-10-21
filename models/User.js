@@ -4,7 +4,7 @@ const mongoose = require('mongoose'),
 	crypto = require('crypto'),
 	slugify = require('slugify');
 
-const opts = { toJSON: { virtuals: true } };
+const opts = { toJSON: { virtuals: true }, toObject: { virtuals: true } };
 
 const UserSchema = new mongoose.Schema(
 	{
@@ -25,10 +25,7 @@ const UserSchema = new mongoose.Schema(
 			required: [true, 'Please add an email'],
 			unique: [true, 'email already used'],
 			trim: true,
-			match: [
-				/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-				'Please add a valid email',
-			],
+			match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please add a valid email'],
 		},
 		role: {
 			type: String,
@@ -134,10 +131,7 @@ UserSchema.methods.getResetPasswordToken = function () {
 	const resetToken = crypto.randomBytes(20).toString('hex');
 
 	// Hash token and set to resetPasswordToken field
-	this.resetPasswordToken = crypto
-		.createHash('sha256')
-		.update(resetToken)
-		.digest('hex');
+	this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
 	// Set expire
 	this.resetPasswordExpire = Date.now() + 1000 * 60 * 10;

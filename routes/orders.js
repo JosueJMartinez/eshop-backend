@@ -19,10 +19,16 @@ const router = express.Router();
 router
 	.route('/')
 	.get(
-		// advancedResults(Order, '', {
-		// 	path: 'bootcamp',
-		// 	select: 'name description',
-		// }),
+		advancedResults({
+			Model: Order,
+			model: 'Orders',
+			popArray: [
+				{
+					path: 'orderItems',
+				},
+				{ path: 'user', select: 'name' },
+			],
+		}),
 		getOrders
 	)
 	.post(protect, createOrder);
