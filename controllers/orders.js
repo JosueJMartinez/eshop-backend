@@ -22,17 +22,17 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
 	req.body.phone = parseInt(req.body.phone.replace(/[^0-9]/g, ''), 10);
 	const { orderItems, shippingAddress1, shippingAddress2, city, zip, country, phone, totalPrice } =
 		req.body;
-	let orderItemIds = Promise.all(
-		orderItems.map(async orderItem => {
-			let newOrderItem = new OrderItem({
-				quantity: orderItem.quantity,
-				product: orderItem.product,
-			});
-			newOrderItem = await newOrderItem.save();
-			return newOrderItem._id;
-		})
-	);
+	let orderItemIds = orderItems.map(async orderItem => {
+		let newOrderItem = new OrderItem({
+			quantity: orderItem.quantity,
+			product: orderItem.product,
+		});
 
+		newOrderItem = await newOrderItem.save();
+		return newOrderItem._id;
+	});
+
+	orderItemIds = Promise.all(orderItemIds);
 	orderItemIds = await orderItemIds;
 
 	const newOrder = new Order({
