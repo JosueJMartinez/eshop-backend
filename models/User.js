@@ -85,6 +85,14 @@ UserSchema.pre('save', function (next) {
 	next();
 });
 
+// Reverse populate with virtuals
+UserSchema.virtual('orders', {
+	ref: 'Order',
+	localField: '_id',
+	foreignField: 'user',
+	justOne: false,
+});
+
 // // Cascade delete bootcamps when a user is deleted
 // UserSchema.pre('remove', async function (next) {
 // 	// look for all bootcamps the user is owner of

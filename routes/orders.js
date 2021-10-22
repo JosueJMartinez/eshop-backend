@@ -19,6 +19,7 @@ const router = express.Router();
 router
 	.route('/')
 	.get(
+		protect,
 		advancedResults({
 			Model: Order,
 			model: 'Orders',

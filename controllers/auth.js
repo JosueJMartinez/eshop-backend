@@ -29,10 +29,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 	const { email, password } = req.body;
 	// Validate Email & password
 	if (!email || !password) {
-		throw new ErrorResponse(
-			'Please enter a valid email and password',
-			400
-		);
+		throw new ErrorResponse('Please enter a valid email and password', 400);
 	}
 
 	// Check for user
@@ -77,9 +74,10 @@ exports.logout = asyncHandler(async (req, res, next) => {
 //  @access   Private
 exports.getCurrentUser = asyncHandler(async (req, res, next) => {
 	const { user } = { ...req };
-	if (!user)
-		throw new ErrorResponse('Current logged in user not found', 401);
-	res.status(200).json({ success: true, data: user });
+	const newUser = await User.findById(user._id).populate('orders');
+	if (!newUser) throw new ErrorResponse('Current logged in user not found', 401);
+
+	res.status(200).json({ success: true, data: newUser });
 });
 
 //  @desc     Update user details
@@ -87,11 +85,7 @@ exports.getCurrentUser = asyncHandler(async (req, res, next) => {
 //  @access   Private
 exports.updateUser = asyncHandler(async (req, res, next) => {
 	// check make sure password is being updated
-	checkFor(
-		req.body.password,
-		'Cannot update since old password was not validated',
-		422
-	);
+	checkFor(req.body.password, 'Cannot update since old password was not validated', 422);
 	// check make sure unable to update your role to admin
 	checkFor(
 		req.body.role === 'admin',
@@ -112,12 +106,10 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 	const user = await User.findById(req.user.id).select('+password');
 	const { password, newPassword } = { ...req.body };
 
-	if (!user)
-		throw new ErrorResponse('Current logged in user not found', 401);
+	if (!user) throw new ErrorResponse('Current logged in user not found', 401);
 
 	// Check if old password matches with database
-	if (!(await user.matchPassword(password)))
-		throw new ErrorResponse('Invalid credentials', 401);
+	if (!(await user.matchPassword(password))) throw new ErrorResponse('Invalid credentials', 401);
 
 	user.password = newPassword;
 	await user.save();
@@ -133,17 +125,14 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 	const user = await User.findOne({ email });
 
 	// check if user exists with that email
-	if (!user)
-		throw new ErrorResponse(`No user found with email ${email}`, 404);
+	if (!user) throw new ErrorResponse(`No user found with email ${email}`, 404);
 
 	const resetToken = user.getResetPasswordToken();
 
 	await user.save({ validateBeforeSave: false });
 
 	// Create reset url
-	const resetUrl = `${req.protocol}://${req.get(
-		'host'
-	)}/api/v1/auth/resetPassword/${resetToken}`;
+	const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/resetPassword/${resetToken}`;
 
 	try {
 		await sendEmail({
@@ -159,9 +148,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 		throw new ErrorResponse('Unable to send email', 500);
 	}
 
-	res
-		.status(200)
-		.json({ success: true, data: `Email sent to ${user.email}` });
+	res.status(200).json({ success: true, data: `Email sent to ${user.email}` });
 });
 
 //  @desc     Delete user account
@@ -170,8 +157,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 exports.deleteUser = asyncHandler(async (req, res, next) => {
 	const user = await User.findById(req.user.id);
 
-	if (!user)
-		throw new ErrorResponse(`User does not exist with id: ${userId}`, 404);
+	if (!user) throw new ErrorResponse(`User does not exist with id: ${userId}`, 404);
 
 	await user.remove();
 

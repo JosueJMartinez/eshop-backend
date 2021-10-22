@@ -14,8 +14,8 @@ const router = express.Router();
 router
 	.route('/:catId')
 	.get(getCategory)
-	.put(protect, authorize('publisher', 'admin'), updateCategory)
-	.delete(protect, authorize('publisher', 'admin'), deleteCategory);
+	.put(protect, authorize('admin'), updateCategory)
+	.delete(protect, authorize('admin'), deleteCategory);
 router
 	.route('/')
 	.get(
@@ -25,6 +25,6 @@ router
 		}),
 		getCategories
 	)
-	.post(protect, authorize('publisher', 'admin'), createCategory);
+	.post(protect, authorize('admin'), createCategory);
 
 module.exports = router;

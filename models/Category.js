@@ -22,11 +22,6 @@ const CategorySchema = new mongoose.Schema(
 		},
 		image: { type: String, trim: true },
 		slug: { type: String, unqiue: true },
-		user: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'User',
-			required: true,
-		},
 	},
 	opts
 );
