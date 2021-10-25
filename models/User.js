@@ -65,10 +65,6 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			required: [true, 'Please add a phone number'],
 		},
-		isFeatured: {
-			type: Boolean,
-			default: false,
-		},
 		resetPasswordToken: String,
 		resetPasswordExpire: Date,
 		createdAt: {
