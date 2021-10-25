@@ -47,7 +47,7 @@ app.use(cors());
 app.use(`${API_URL}/products`, products);
 app.use(`${API_URL}/categories`, categories);
 app.use(`${API_URL}/orders`, orders);
-app.use(`${API_URL}/auth/users`, users);
+app.use(`${API_URL}/admin/users`, users);
 app.use(`${API_URL}/auth`, auth);
 
 // middleware error handling
@@ -56,9 +56,8 @@ app.use(errorHandler);
 //server listens on here
 app.listen(PORT || 3000, IP || '127.0.0.1', () => {
 	console.log(
-		`E-commerce App started on port: ${
-			(PORT || '3000').blue.bold.underline
-		} ${'at IP:'.magenta} ${(IP || '127.0.0.1').blue.bold.underline}`
-			.magenta
+		`E-commerce App started on port: ${(PORT || '3000').blue.bold.underline} ${'at IP:'.magenta} ${
+			(IP || '127.0.0.1').blue.bold.underline
+		}`.magenta
 	);
 });

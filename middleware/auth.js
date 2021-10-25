@@ -8,14 +8,11 @@ const jwt = require('jsonwebtoken'),
 exports.protect = asyncHandler(async (req, res, next) => {
 	let token;
 
-	if (
-		req.headers.authorization &&
-		req.headers.authorization.startsWith('Bearer')
-	)
+	if (req.headers.authorization && req.headers.authorization.startsWith('Bearer'))
 		token = req.headers.authorization.split(' ')[1];
 
 	// Make sure token exists
-	if (!token) throw new ErrorResponse('Not authorized', 401);
+	if (!token) throw new ErrorResponse('Please login', 401);
 
 	// decode token then use id from decode
 	const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -41,11 +38,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 		req.token = token;
 	}
 
-	if (!req.user)
-		throw new ErrorResponse(
-			'Uh oh something went wrong logged in user not found',
-			404
-		);
+	if (!req.user) throw new ErrorResponse('Need to be logged in', 401);
 
 	next();
 });
@@ -55,10 +48,7 @@ exports.authorize =
 	(...roles) =>
 	(req, res, next) => {
 		if (!roles.includes(req.user.role)) {
-			throw new ErrorResponse(
-				`User role '${req.user.role}' is not authorized to access this`,
-				403
-			);
+			throw new ErrorResponse(`User role '${req.user.role}' is not authorized to access this`, 403);
 		}
 		next();
 	};

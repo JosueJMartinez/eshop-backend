@@ -4,15 +4,23 @@ const asyncHandler = require('./async');
 const advancedResults = input =>
 	asyncHandler(async (req, res, next) => {
 		// 	Copy req.query
-		const { Model, model, popArray } = { ...input };
+		const { Model, model, popArray, personal } = { ...input };
 		const reqQuery = { ...req.query };
+
 		// 	Fields to exclude
 		const removeFields = ['select', 'sort', 'page', 'limit', 'getCount'];
 
 		// 	Loop over removeFields and delete them from the reqQuery
 		removeFields.forEach(param => delete reqQuery[param]);
+
 		// 	Create query string`
 		let queryStr = JSON.stringify(reqQuery);
+
+		// Check to see only can search personal or global
+		if (personal) {
+			if (queryStr.length < 3) queryStr = queryStr.replace('}', ` "user": "${req.user.id}"}`);
+			else queryStr = queryStr.replace('}', `, "user": "${req.user.id}"}`);
+		}
 
 		// 	Create operators ($gt, $gte, etc)
 		queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
@@ -52,7 +60,6 @@ const advancedResults = input =>
 			});
 			// query = query.populate(populate);
 		}
-		console.log(query._mongooseOptions.populate);
 
 		// Pagination
 		const page = parseInt(req.query.page, 10) || 1;
