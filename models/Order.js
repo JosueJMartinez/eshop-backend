@@ -60,20 +60,14 @@ const OrderSchema = new mongoose.Schema(
 	opts
 );
 
-// Cascade delete bootcamps when a user is deleted
+// Cascade delete orderItems when an order is deleted
 OrderSchema.pre('remove', async function (next) {
-	// look for all bootcamps the user is owner of
-	const order = await this.model('Order').find({ user: this._id });
+	console.log(this);
 
-	// go through each bootcamp and delete courses and reviews related to each bootcamp
-	order.orderItems.forEach(async orderItem => {
+	// go through each orderItem and delete orderItem related to this order
+	this.orderItems.forEach(async orderItem => {
 		await this.model('OrderItems').findByIdAndDelete(orderItem);
 	});
-
-	// next delete bootcamps, reviews, and courses related to this user
-	await this.model('Bootcamp').deleteMany({ user: this._id });
-	await this.model('Review').deleteMany({ user: this._id });
-	await this.model('Course').deleteMany({ user: this._id });
 
 	next();
 });
