@@ -120,3 +120,29 @@ exports.updateOrder = asyncHandler(async (req, res, next) => {
 		data: order,
 	});
 });
+
+//  @desc     Delete order
+//  @route    Delete /api/v1/orders/:orderId
+//  @access   Private
+exports.deleteOrder = asyncHandler(async (req, res, next) => {
+	const { orderId } = { ...req.params };
+	const order = await Order.findById(orderId);
+	const currentUser = req.user;
+
+	if (!order) throw new ErrorResponse(`Resource not found with id of ${orderId}`, 404, orderId);
+
+	// Make sure user is order owner or admin if return ErrorResponse
+	if (order.user.toString() !== currentUser.id && currentUser.role !== 'admin')
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update order ${orderId}`,
+			401
+		);
+
+	const deletedProd = await order.remove();
+	if (!deletedProd)
+		throw new ErrorResponse(`Unable to delete order with id: ${orderId}`, 500, productId);
+	res.status(200).json({
+		success: true,
+		data: {},
+	});
+});
