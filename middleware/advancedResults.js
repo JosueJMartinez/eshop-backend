@@ -55,7 +55,6 @@ const advancedResults = input =>
 
 		if (popArray) {
 			popArray.map(pop => {
-				console.log(pop);
 				query = query.populate(pop);
 			});
 			// query = query.populate(populate);

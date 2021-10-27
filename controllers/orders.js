@@ -88,3 +88,35 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
 		data: addedOrder,
 	});
 });
+
+//  @desc     Update Order
+//  @route    Put /api/v1/orders/:orderId
+//  @access   Private
+exports.updateOrder = asyncHandler(async (req, res, next) => {
+	req.body.phone = parseInt(req.body.phone.replace(/[^0-9]/g, ''), 10);
+	const { orderId } = { ...req.params };
+	const currentUser = req.user;
+	const updateOrder = req.body;
+	let order = await Order.findById(orderId);
+	if (!order) throw new ErrorResponse(`Resource not found with id of ${orderId}`, 404, orderId);
+
+	// Make sure user is order owner or admin if return ErrorResponse
+	if (order.user.toString() !== currentUser.id && currentUser.role !== 'admin')
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update order ${orderId}`,
+			401
+		);
+
+	if (updateOrder.orderItems || updateOrder.totalPrice || updateOrder.user)
+		throw new ErrorResponse(`Unable to update order with given updates`, 401);
+
+	order = await Order.findByIdAndUpdate(orderId, updateOrder, {
+		new: true,
+		runValidators: true,
+	});
+
+	res.status(200).json({
+		success: true,
+		data: order,
+	});
+});
