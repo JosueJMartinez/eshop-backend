@@ -62,11 +62,9 @@ const OrderSchema = new mongoose.Schema(
 
 // Cascade delete orderItems when an order is deleted
 OrderSchema.pre('remove', async function (next) {
-	console.log(this);
-
 	// go through each orderItem and delete orderItem related to this order
 	this.orderItems.forEach(async orderItem => {
-		await this.model('OrderItems').findByIdAndDelete(orderItem);
+		const test = await this.model('OrderItem').findByIdAndDelete(orderItem);
 	});
 
 	next();
