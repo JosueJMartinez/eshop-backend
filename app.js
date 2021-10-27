@@ -49,6 +49,9 @@ app.use(`${API_URL}/categories`, categories);
 app.use(`${API_URL}/orders`, orders);
 app.use(`${API_URL}/admin/users`, users);
 app.use(`${API_URL}/auth`, auth);
+app.use((req, res) => {
+	res.status(404).json({ success: false, data: 'page does not exist' });
+});
 
 // middleware error handling
 app.use(errorHandler);
