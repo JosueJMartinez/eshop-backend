@@ -89,24 +89,25 @@ UserSchema.virtual('orders', {
 	justOne: false,
 });
 
-// // Cascade delete bootcamps when a user is deleted
-// UserSchema.pre('remove', async function (next) {
-// 	// look for all bootcamps the user is owner of
-// 	const bootcamps = await this.model('Bootcamp').find({ user: this._id });
+// Cascade delete orders and reassign categories to an admin when a user/publisher is deleted
+UserSchema.pre('remove', async function (next) {
+	// look for all orders the user is owner of
+	const orders = await this.model('Order').find({ user: this.id });
 
-// 	// go through each bootcamp and delete courses and reviews related to each bootcamp
-// 	bootcamps.forEach(async bootcamp => {
-// 		await this.model('Course').deleteMany({ bootcamp: bootcamp._id });
-// 		await this.model('Review').deleteMany({ bootcamp: bootcamp._id });
-// 	});
+	// go through each order and remove them and will cascade down to delete all orderItems in prehook
+	// on OrderSchema
+	orders.forEach(async order => {
+		await order.remove();
+	});
 
-// 	// next delete bootcamps, reviews, and courses related to this user
-// 	await this.model('Bootcamp').deleteMany({ user: this._id });
-// 	await this.model('Review').deleteMany({ user: this._id });
-// 	await this.model('Course').deleteMany({ user: this._id });
+	// // next delete bootcamps, reviews, and courses related to this user
+	// not sure if going to use this
+	// await this.model('Bootcamp').deleteMany({ user: this._id });
+	// await this.model('Review').deleteMany({ user: this._id });
+	// await this.model('Course').deleteMany({ user: this._id });
 
-// 	next();
-// });
+	next();
+});
 
 // Encrypt password using bcrypt
 UserSchema.pre('save', async function (next) {

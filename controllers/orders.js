@@ -134,7 +134,7 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
 	// Make sure user is order owner or admin if return ErrorResponse
 	if (order.user.toString() !== currentUser.id && currentUser.role !== 'admin')
 		throw new ErrorResponse(
-			`User ${req.user.id} is not authorized to update order ${orderId}`,
+			`User ${req.user.id} is not authorized to delete order ${orderId}`,
 			401
 		);
 

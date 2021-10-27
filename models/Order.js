@@ -64,7 +64,7 @@ const OrderSchema = new mongoose.Schema(
 OrderSchema.pre('remove', async function (next) {
 	// go through each orderItem and delete orderItem related to this order
 	this.orderItems.forEach(async orderItem => {
-		const test = await this.model('OrderItem').findByIdAndDelete(orderItem);
+		await this.model('OrderItem').findByIdAndDelete(orderItem);
 	});
 
 	next();
