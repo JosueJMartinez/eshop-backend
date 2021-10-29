@@ -94,8 +94,8 @@ UserSchema.pre('remove', async function (next) {
 	// look for all orders the user is owner of
 	const orders = await this.model('Order').find({ user: this.id });
 
-	// go through each order and remove them and will cascade down to delete all orderItems in prehook
-	// on OrderSchema
+	// go through each order and remove them and will cascade down to delete
+	// all orderItems in prehook on OrderSchema
 	orders.forEach(async order => {
 		await order.remove();
 	});

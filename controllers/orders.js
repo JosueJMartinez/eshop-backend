@@ -51,14 +51,15 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
 		const foundProduct = await Product.findById(orderItem.product).select('price');
 		if (!foundProduct) throw new ErrorResponse(`Product could not be found`, 406);
 
-		totalPrice += orderItem.quantity * foundProduct.price;
-
 		let newOrderItem = new OrderItem({
 			quantity: orderItem.quantity,
 			product: orderItem.product,
 		});
 		// save it and return OrderItem id
 		newOrderItem = await newOrderItem.save();
+
+		totalPrice += orderItem.quantity * foundProduct.price;
+
 		return newOrderItem._id;
 	});
 	// await promises to resolve themselves
