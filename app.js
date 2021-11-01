@@ -22,8 +22,9 @@ connectDB();
 const products = require('./routes/products'),
 	categories = require('./routes/categories'),
 	orders = require('./routes/orders'),
-	users = require('./routes/users'),
-	auth = require('./routes/auth');
+	users = require('./routes/admin/users'),
+	auth = require('./routes/auth'),
+	adminOrders = require('./routes/admin/orders');
 const app = express();
 
 // Middleware
@@ -48,6 +49,7 @@ app.use(`${API_URL}/products`, products);
 app.use(`${API_URL}/categories`, categories);
 app.use(`${API_URL}/orders`, orders);
 app.use(`${API_URL}/admin/users`, users);
+app.use(`${API_URL}/admin/orders`, adminOrders);
 app.use(`${API_URL}/auth`, auth);
 app.use((req, res) => {
 	res.status(404).json({ success: false, data: 'page does not exist' });

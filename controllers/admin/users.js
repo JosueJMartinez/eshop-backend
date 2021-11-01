@@ -1,7 +1,7 @@
-const User = require('../models/User');
-const ErrorResponse = require('../utils/errorResponse');
-const asyncHandler = require('../middleware/async');
-const checkFor = require('../utils/checkFor');
+const User = require('../../models/User');
+const ErrorResponse = require('../../utils/errorResponse');
+const asyncHandler = require('../../middleware/async');
+const checkFor = require('../../utils/checkFor');
 
 //  @desc     Get all users
 //  @route    Get /api/v1/auth/users
@@ -16,12 +16,7 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
 exports.getUser = asyncHandler(async (req, res, next) => {
 	const { userId } = { ...req.params };
 	const user = await User.findById(userId);
-	if (!user)
-		throw new ErrorResponse(
-			`Unable to find a user with id: ${userId}`,
-			404,
-			userId
-		);
+	if (!user) throw new ErrorResponse(`Unable to find a user with id: ${userId}`, 404, userId);
 
 	res.status(200).json({ success: true, data: user });
 });
@@ -31,22 +26,13 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 //  @access   Private/Admin
 exports.updateUser = asyncHandler(async (req, res, next) => {
 	// while updating user check make sure password is not being updated
-	checkFor(
-		req.body.password,
-		'Cannot update since old password was not validated',
-		422
-	);
+	checkFor(req.body.password, 'Cannot update since old password was not validated', 422);
 
 	const { userId } = { ...req.params };
 	const updateUser = req.body;
 	let user = await User.findById(userId);
 
-	if (!user)
-		throw new ErrorResponse(
-			`Unable to find a user with id: ${userId}`,
-			404,
-			userId
-		);
+	if (!user) throw new ErrorResponse(`Unable to find a user with id: ${userId}`, 404, userId);
 
 	user = await User.findByIdAndUpdate(userId, updateUser, {
 		new: true,

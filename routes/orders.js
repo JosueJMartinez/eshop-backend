@@ -29,7 +29,7 @@ router
 					populate: {
 						path: 'product',
 						model: 'Product',
-						select: 'name image',
+						select: 'name image price',
 					},
 				},
 				// { path: 'user', select: 'name' },

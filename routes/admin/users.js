@@ -5,10 +5,10 @@ const {
 	createUser,
 	deleteUser,
 	updateUser,
-} = require('../controllers/users');
-const User = require('../models/User');
-const advancedResults = require('../middleware/advancedResults');
-const { protect, authorize } = require('../middleware/auth');
+} = require('../../controllers/admin/users');
+const User = require('../../models/User');
+const advancedResults = require('../../middleware/advancedResults');
+const { protect, authorize } = require('../../middleware/auth');
 const router = express.Router();
 
 router.use(protect);
