@@ -5,11 +5,14 @@ const {
 	getOrder,
 	updateOrder,
 	deleteOrder,
+	getSumOfAllOrders,
 } = require('../controllers/orders');
 const Order = require('../models/Order');
 const advancedResults = require('../middleware/advancedResults');
+const calcResults = require('../middleware/calcResults');
 const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
+router.route('/sum').get(protect, calcResults(), getSumOfAllOrders);
 
 router
 	.route('/:orderId')

@@ -5,27 +5,29 @@ const asyncHandler = require('./async');
 const calcResults = input =>
 	asyncHandler(async (req, res, next) => {
 		// get Model, model and, personal from input
-		const { Model, model, personal } = input;
+		const { model, Model } = input;
 		// get query from req.query
 		const { query } = req;
-		// get user from req.user
-		const { user } = req;
-		// get user id from user
-		const { id: userId } = user;
+
+		// fields to exclude from query
+		const exclude = [];
 
 		// return sum from orders totalPrice
-		const sum = await Model.aggregate([
-			{
-				$match: {
-					user: userId,
-					...query,
-				},
-			},
-			{
-				$group: {
-					_id: null,
-					sum: { $sum: '$totalPrice' },
-				},
-			},
-		]);
+		// const sum = await Model.aggregate([
+		// 	{
+		// 		$match: {
+		// 			user: userId,
+		// 		},
+		// 	},
+		// 	{
+		// 		$group: {
+		// 			_id: null,
+		// 			result: { $sum: '$totalPrice' },
+		// 		},
+		// 	},
+		// ]);
+		console.log(query);
+		next();
 	});
+
+module.exports = calcResults;

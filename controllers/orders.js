@@ -147,3 +147,24 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
 		data: {},
 	});
 });
+
+// @desc   Get sum of all orders by user
+// @route  GET /api/v1/orders/sum
+// @access Private
+exports.getSumOfAllOrders = asyncHandler(async (req, res, next) => {
+	const currentUser = req.user;
+
+	const sumOfAllOrders = await Order.aggregate([
+		{
+			$match: {},
+		},
+		{
+			$group: { _id: null, totalPrice: { $sum: '$totalPrice' } },
+		},
+	]);
+
+	res.status(200).json({
+		success: true,
+		data: sumOfAllOrders,
+	});
+});
