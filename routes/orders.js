@@ -12,7 +12,9 @@ const advancedResults = require('../middleware/advancedResults');
 const calcResults = require('../middleware/calcResults');
 const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
-router.route('/sum').get(protect, calcResults(), getSumOfAllOrders);
+router
+	.route('/sum')
+	.get(protect, calcResults({ Model: Order, model: 'Orders' }), getSumOfAllOrders);
 
 router
 	.route('/:orderId')
