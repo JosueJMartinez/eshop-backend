@@ -7,17 +7,24 @@ const calcResults = input =>
 		// get Model, model and, personal from input
 		const { model, Model } = input;
 		// get query from req.query
-		const { params } = req;
+		const { query } = req;
 
-		const { matchE, matchF, group } = params;
+		const { matchE, matchF, group } = query;
 
 		// create an obj query with $group and $match as fields that are objects
-		const query = {
+		const builtQuery = {
 			$group: {},
 			$match: {},
 		};
 
-		console.log(matchE, matchF, group);
+		matchE.forEach((e, i) => {
+			builtQuery.$match[e] = matchF[i];
+		});
+
+		if ('date' in builtQuery.$match) {
+			builtQuery.$match.date = new Date(builtQuery.$match.date);
+		}
+		console.log(builtQuery);
 
 		// fields to exclude from query
 		const exclude = [];
