@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const ErrorResponse = require('../utils/errorResponse'),
-	asyncHandler = require('./async');
+	asyncHandler = require('./async'),
+	Date = require('../utils/Date');
 
 // middleware to calculate results from input and query
 const calcResults = input =>
@@ -14,21 +15,43 @@ const calcResults = input =>
 
 		queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in|sum|match|group)\b/g, match => `$${match}`);
 		query = JSON.parse(queryStr);
-		const period = query.period;
-		const arr = [{ $match: query.$match }, { $group: query.$group }];
-		date = arr[0].$match.date;
-		arr[0].$match.date = { $lt: new Date(date) };
-		arr[0].$match.date.$gte = new Date(date);
-		if (arr[0].$match.user) arr[0].$match.user = mongoose.Types.ObjectId(arr[0].$match.user);
-		if (arr[0].$match.date) {
-			if (period === 'day') arr[0].$match.date.$lt.setDate(arr[0].$match.date.$lt + 1);
-			else if (period === 'week') arr[0].$match.date.$lt.setDate(arr[0].$match.date.$lt + 7);
-			else if (period === 'month') arr[0].$match.date.$lt.setDate(arr[0].$match.date.$lt + 30);
-			else arr[0].$match.date.$lt.setDate(arr[0].$match.date.$lt + 365);
+
+		const { $match, $group, period } = { ...query };
+		if ($match) {
+			if ($match.date) {
+				date = $match.date;
+				date = new Date(date);
+				$match.dateOrdered = { $gte: new Date(date) };
+				delete $match.date;
+
+				if (period === 'day') date.addDays(date, 1);
+				else if (period === 'week') date.addDays(date, 7);
+				else if (period === 'month') date.addDays(date, 30);
+				else date.addDays(date, 365);
+
+				$match.dateOrdered.$lt = date;
+			}
+			if ($match.user) $match.user = mongoose.Types.ObjectId($match.user);
 		}
-		console.log(arr[0].$match);
-		const result = await Model.aggregate([arr]);
-		res.calcResults = result;
+
+		if ($group) {
+			if ($group._id) {
+				if ($group._id === 'day') {
+					$group._id = { $dateToString: { format: '%Y-%m-%d', date: '$dateOrdered' } };
+				} else if ($group._id === 'week') {
+					$group._id = { $dateToString: { format: '%Y-%V', date: '$dateOrdered' } };
+				} else if ($group._id === 'month') {
+					$group._id = { $dateToString: { format: '%Y-%m', date: '$dateOrdered' } };
+				} else {
+					$group._id = { $dateToString: { format: '%Y', date: '$dateOrdered' } };
+				}
+			}
+		}
+		let result;
+		if ($match) result = await Model.aggregate([{ $match }, { $group }]);
+		else result = await Model.aggregate([{ $group }]);
+		if (result.length === 0) res.calcResults = { data: 'no data found' };
+		else res.calcResults = { data: result };
 		next();
 	});
 
