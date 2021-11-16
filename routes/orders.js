@@ -14,7 +14,7 @@ const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 router
 	.route('/sum')
-	.get(protect, calcResults({ Model: Order, model: 'Orders' }), getSumOfAllOrders);
+	.get(protect, calcResults({ Model: Order, model: 'Orders', personal: true }), getSumOfAllOrders);
 
 router
 	.route('/:orderId')

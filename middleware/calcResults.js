@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('./async'),
-	Date = require('../utils/Date');
+	Date = require('../utils/date');
+const queryStrReplaceWith$ = require('../utils/queryReplace');
 
 // middleware to calculate results from input and query
 const calcResults = input =>
@@ -10,10 +11,14 @@ const calcResults = input =>
 		const { model, Model } = input;
 		// get query from req.query
 		let { query } = req;
-		let queryStr = JSON.stringify(query);
 		let date;
-
-		queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in|sum|match|group)\b/g, match => `$${match}`);
+		let queryStr = JSON.stringify(query);
+		queryStr = queryStrReplaceWith$(queryStr, /\b(gt|gte|lt|lte|in|sum|match|group)\b/g);
+		console.log(queryStr);
+		// if (personal) {
+		// 	if (queryStr.length < 3) queryStr = queryStr.replace('}', ` "user": "${req.user.id}"}`);
+		// 	else queryStr = queryStr.replace('}', `, "user": "${req.user.id}"}`);
+		// }
 		query = JSON.parse(queryStr);
 
 		const { $match, $group, period } = { ...query };
