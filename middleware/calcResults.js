@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const addUser = require('../utils/addUser');
 const ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('./async'),
 	Date = require('../utils/date');
@@ -22,8 +23,7 @@ const calcResults = input =>
 		if (!$match) $match = {};
 		if (personal) {
 			$match = JSON.stringify($match);
-			if ($match.length < 3) $match = $match.replace('}', ` "user": "${req.user.id}"}`);
-			else $match = $match.replace('}', `, "user": "${req.user.id}"}`);
+			$match = addUser($match, req.user.id);
 			$match = JSON.parse($match);
 		}
 

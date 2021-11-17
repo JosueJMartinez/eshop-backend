@@ -18,8 +18,7 @@ const advancedResults = input =>
 
 		// Check to see only can search personal or global
 		if (personal) {
-			if (queryStr.length < 3) queryStr = queryStr.replace('}', ` "user": "${req.user.id}"}`);
-			else queryStr = queryStr.replace('}', `, "user": "${req.user.id}"}`);
+			queryStr = addUser(queryStr, req.user.id);
 		}
 
 		// 	Create operators ($gt, $gte, etc)
