@@ -8,36 +8,39 @@ const queryStrReplaceWith$ = require('../utils/queryReplace');
 const calcResults = input =>
 	asyncHandler(async (req, res, next) => {
 		// get Model, model and, personal from input
-		const { model, Model } = input;
+		const { model, Model, personal } = input;
 		// get query from req.query
 		let { query } = req;
 		let date;
 		let queryStr = JSON.stringify(query);
 		queryStr = queryStrReplaceWith$(queryStr, /\b(gt|gte|lt|lte|in|sum|match|group)\b/g);
 		console.log(queryStr);
-		// if (personal) {
-		// 	if (queryStr.length < 3) queryStr = queryStr.replace('}', ` "user": "${req.user.id}"}`);
-		// 	else queryStr = queryStr.replace('}', `, "user": "${req.user.id}"}`);
-		// }
+
 		query = JSON.parse(queryStr);
 
-		const { $match, $group, period } = { ...query };
-		if ($match) {
-			if ($match.date) {
-				date = $match.date;
-				date = new Date(date);
-				$match.dateOrdered = { $gte: new Date(date) };
-				delete $match.date;
-
-				if (period === 'day') date.addDays(date, 1);
-				else if (period === 'week') date.addDays(date, 7);
-				else if (period === 'month') date.addDays(date, 30);
-				else date.addDays(date, 365);
-
-				$match.dateOrdered.$lt = date;
-			}
-			if ($match.user) $match.user = mongoose.Types.ObjectId($match.user);
+		let { $match, $group, period } = { ...query };
+		if (!$match) $match = {};
+		if (personal) {
+			$match = JSON.stringify($match);
+			if ($match.length < 3) $match = $match.replace('}', ` "user": "${req.user.id}"}`);
+			else $match = $match.replace('}', `, "user": "${req.user.id}"}`);
+			$match = JSON.parse($match);
 		}
+
+		if ($match.date) {
+			date = $match.date;
+			date = new Date(date);
+			$match.dateOrdered = { $gte: new Date(date) };
+			delete $match.date;
+
+			if (period === 'day') date.addDays(date, 1);
+			else if (period === 'week') date.addDays(date, 7);
+			else if (period === 'month') date.addDays(date, 30);
+			else date.addDays(date, 365);
+
+			$match.dateOrdered.$lt = date;
+		}
+		if ($match.user) $match.user = mongoose.Types.ObjectId($match.user);
 
 		if ($group) {
 			if ($group._id) {
