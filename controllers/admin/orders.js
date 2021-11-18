@@ -10,3 +10,10 @@ const Product = require('../../models/Product');
 exports.getOrders = asyncHandler(async (req, res, next) => {
 	res.status(200).json(res.advancedResults);
 });
+
+// @desc   Get sum of all orders
+// @route  GET /api/v1/orders/sum
+// @access Private Admin
+exports.getSumOfAllOrders = asyncHandler(async (req, res, next) => {
+	res.status(200).json(res.calcResults);
+});

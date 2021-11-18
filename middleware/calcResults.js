@@ -15,7 +15,6 @@ const calcResults = input =>
 		let date;
 		let queryStr = JSON.stringify(query);
 		queryStr = queryStrReplaceWith$(queryStr, /\b(gt|gte|lt|lte|in|sum|match|group)\b/g);
-		console.log(queryStr);
 
 		query = JSON.parse(queryStr);
 
