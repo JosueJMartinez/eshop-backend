@@ -32,9 +32,9 @@ const calcResults = input =>
 			$match.dateOrdered = { $gte: new Date(date) };
 			delete $match.date;
 
-			if (period === 'day') date.addDays(date, 1);
-			else if (period === 'week') date.addDays(date, 7);
-			else if (period === 'month') date.addDays(date, 30);
+			if (period === 'day' || period === 'd') date.addDays(date, 1);
+			else if (period === 'week' || period === 'w') date.addDays(date, 7);
+			else if (period === 'month' || period === 'm') date.addDays(date, 30);
 			else date.addDays(date, 365);
 
 			$match.dateOrdered.$lt = date;
