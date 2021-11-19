@@ -54,11 +54,11 @@ const calcResults = input =>
 				}
 			}
 		}
-		let result;
-		if ($match) result = await Model.aggregate([{ $match }, { $group }]);
-		else result = await Model.aggregate([{ $group }]);
-		if (result.length === 0) res.calcResults = { data: 'no data found' };
-		else res.calcResults = { data: result };
+		let results;
+		if ($match) results = await Model.aggregate([{ $match }, { $group }]);
+		else results = await Model.aggregate([{ $group }]);
+		if (!results || results.length === 0) res.calcResults = { data: 'no data can be generated' };
+		else res.calcResults = { data: results };
 		next();
 	});
 
