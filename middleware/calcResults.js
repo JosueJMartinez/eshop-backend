@@ -57,7 +57,8 @@ const calcResults = input =>
 		let results;
 		if ($match) results = await Model.aggregate([{ $match }, { $group }]);
 		else results = await Model.aggregate([{ $group }]);
-		if (!results || results.length === 0) res.calcResults = { data: 'no data can be generated' };
+		if (!results || results.length === 0)
+			res.calcResults = { data: `no data can be generated for ${model}` };
 		else res.calcResults = { data: results };
 		next();
 	});
