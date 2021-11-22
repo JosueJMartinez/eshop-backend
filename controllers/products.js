@@ -37,6 +37,7 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 	if (!foundCategory) throw new ErrorResponse(`Category ${req.body.category} does not exist`, 400);
 
 	req.body.category = foundCategory._id;
+	req.body.isFeatured = req.body.isFeatured ? true : false;
 
 	const newProduct = new Product({
 		...req.body,
