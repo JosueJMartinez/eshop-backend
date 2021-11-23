@@ -2,6 +2,7 @@ const Product = require('../models/Product'),
 	Category = require('../models/Category'),
 	ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('../middleware/async');
+const { checkDirectory } = require('../utils/utils');
 
 //  @desc     Get all products
 //  @route    Get /api/v1/products
@@ -38,7 +39,7 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 
 	req.body.category = foundCategory._id;
 	req.body.isFeatured = req.body.isFeatured ? true : false;
-
+	checkDirectory('./public/images/users');
 	const newProduct = new Product({
 		...req.body,
 	});

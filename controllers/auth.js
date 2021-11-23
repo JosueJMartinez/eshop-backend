@@ -3,7 +3,7 @@ const User = require('../models/User'),
 	asyncHandler = require('../middleware/async'),
 	sendEmail = require('../utils/sendEmail'),
 	crypto = require('crypto'),
-	checkFor = require('../utils/checkFor'),
+	{ checkFor } = require('../utils/utils'),
 	redisClient = require('../configurations/redis');
 
 //  @desc     Register User
