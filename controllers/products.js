@@ -39,14 +39,18 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 
 	req.body.category = foundCategory._id;
 	req.body.isFeatured = req.body.isFeatured ? true : false;
-	checkDirectory('./public/images/users');
 	const newProduct = new Product({
 		...req.body,
 	});
 
+	// TODO: modify image and images array to include directory where images will be stored on newProduct
 	const addedProduct = await newProduct.save();
 
 	if (!addedProduct) throw new ErrorResponse(`Unable to create product please try again`, 500);
+	// check if directory exists to store images if not create it
+	checkDirectory('./public/images/users');
+
+	// TODO: add move images from temp directory to new location indicated on newProduct.images
 
 	res.status(201).json({
 		success: true,
