@@ -16,14 +16,8 @@ const { upload } = require('../middleware/upload');
 router
 	.route('/:productId')
 	.get(getProduct)
-	.put(
-		// protect, authorize('publisher', 'admin'),
-		updateProduct
-	)
-	.delete(
-		// protect, authorize('publisher', 'admin'),
-		deleteProduct
-	);
+	.put(protect, authorize('publisher', 'admin'), updateProduct)
+	.delete(protect, authorize('publisher', 'admin'), deleteProduct);
 
 router
 	.route('/')
