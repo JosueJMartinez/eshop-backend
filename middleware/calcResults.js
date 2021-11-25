@@ -43,15 +43,13 @@ const calcResults = input =>
 
 		if ($group) {
 			if ($group._id) {
-				if ($group._id === 'day') {
+				if ($group._id === 'day')
 					$group._id = { $dateToString: { format: '%Y-%m-%d', date: '$dateOrdered' } };
-				} else if ($group._id === 'week') {
+				else if ($group._id === 'week')
 					$group._id = { $dateToString: { format: '%Y-%V', date: '$dateOrdered' } };
-				} else if ($group._id === 'month') {
+				else if ($group._id === 'month')
 					$group._id = { $dateToString: { format: '%Y-%m', date: '$dateOrdered' } };
-				} else {
-					$group._id = { $dateToString: { format: '%Y', date: '$dateOrdered' } };
-				}
+				else $group._id = { $dateToString: { format: '%Y', date: '$dateOrdered' } };
 			}
 		}
 		let results;
