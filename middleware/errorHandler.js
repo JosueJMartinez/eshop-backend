@@ -4,15 +4,16 @@ const _ = require('lodash');
 function errorHandler(err, req, res, next) {
 	if (process.env.ENVIRONMENT === 'dev') console.log(err);
 	let error = { ...err };
-	console.log('test');
-	console.log(error);
 	error.message = err.message;
 	if (err.name === 'CastError') error = new ErrorResponse(`Resource not found`, 404);
 
 	// Mongoose Duplicate Error
 	if (error.code === 11000) {
 		// check error message for which collection failed
-		console.log(req.file);
+		// delete files in public/temp folder
+		if (req.files.prodImage) deleteFiles(req.files.prodImage);
+		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+
 		if (_.isEqual(error.keyPattern, { bootcamp: 1, user: 1 }))
 			error = new ErrorResponse(`User already has a review`, 400);
 		else error = new ErrorResponse(`Duplicate name found trying to create this resource`, 400);

@@ -2,7 +2,7 @@ const Product = require('../models/Product'),
 	Category = require('../models/Category'),
 	ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('../middleware/async');
-const { checkDirectory } = require('../utils/utils');
+const { checkDirectory, mvFilesFromTmpToDest, deleteFiles } = require('../utils/utils');
 
 //  @desc     Get all products
 //  @route    Get /api/v1/products
@@ -31,26 +31,45 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
 //  @desc     Add a single Product
 //  @route    Post /api/v1/products
 //  @access   Private
-exports.createProduct = asyncHandler(async (req, res, next) => {
+exports.createProduct = asyncHandler(async (req, res) => {
 	const foundCategory = await Category.findOne({
 		name: req.body.category,
 	});
-	if (!foundCategory) throw new ErrorResponse(`Category ${req.body.category} does not exist`, 400);
+	if (!foundCategory) {
+		// delete files in public/temp folder
+		if (req.files.prodImage) deleteFiles(req.files.prodImage);
+		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+
+		throw new ErrorResponse(`Category ${req.body.category} does not exist`, 400);
+	}
 
 	req.body.category = foundCategory._id;
 	req.body.isFeatured = req.body.isFeatured ? true : false;
+	req.body.name = req.body.name.trim();
+
+	// modify the path for image and gallery
+	if (req.files.prodImage)
+		req.body.image = `./public/products/${req.body.name}/${req.files.prodImage[0].filename}`;
+	if (req.files.uploadProdGallery)
+		req.body.images = req.files.uploadProdGallery.map(
+			image => `./public/products/${req.body.name}/${image.filename}`
+		);
+
 	const newProduct = new Product({
 		...req.body,
 	});
 
-	// TODO: modify image and images array to include directory where images will be stored on newProduct
 	const addedProduct = await newProduct.save();
 
 	if (!addedProduct) throw new ErrorResponse(`Unable to create product please try again`, 500);
-	// check if directory exists to store images if not create it
-	checkDirectory('./public/images/users');
 
-	// TODO: add move images from temp directory to new location indicated on newProduct.images
+	// check if directory exists to store images if not create it
+	checkDirectory(`./public/products/${req.body.name}`);
+
+	// move files from temp to public/products
+	if (req.files.prodImage) mvFilesFromTmpToDest(req.files.prodImage, [addedProduct.image]);
+	if (req.files.uploadProdGallery)
+		mvFilesFromTmpToDest(req.files.uploadProdGallery, addedProduct.images);
 
 	res.status(201).json({
 		success: true,

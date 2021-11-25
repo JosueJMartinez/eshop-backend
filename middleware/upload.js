@@ -1,4 +1,5 @@
 const multer = require('multer');
+const { checkDirectory } = require('../utils/utils');
 
 const storage = multer.diskStorage({
 	filename: function (req, file, cb) {
@@ -17,5 +18,12 @@ const imageFilter = function (req, file, cb) {
 	cb(null, true);
 };
 
-exports.upload = multer({ storage: storage, fileFilter: imageFilter }).single('testImage');
-exports.uploadMult = multer({ storage: storage, fileFilter: imageFilter }).array('testImages', 10);
+exports.upload = multer({ storage: storage, fileFilter: imageFilter }).fields([
+	{ name: 'prodImage', maxCount: 1 },
+	{ name: 'uploadProdGallery', maxCount: 10 },
+]);
+
+exports.makeTempDir = function (req, res, next) {
+	checkDirectory('./public/tmp');
+	next();
+};

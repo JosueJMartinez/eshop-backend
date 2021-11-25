@@ -23,3 +23,20 @@ exports.checkDirectory = (dir, i = 0) => {
 	if (arr[i + 1]) return this.checkDirectory(dir, i + 1);
 	return;
 };
+
+// Moves files from one directory to another
+// @param object files to move
+// @param object destDirectory to move files to
+exports.mvFilesFromTmpToDest = (images, pathes) => {
+	images.forEach(async (image, i) => {
+		fs.rename(image.path, pathes[i], err => {
+			if (err) throw new ErrorResponse(`Unable to move image to new location`, 500);
+		});
+	});
+};
+
+exports.deleteFiles = files => {
+	files.forEach(file => {
+		fs.unlinkSync(file.path);
+	});
+};
