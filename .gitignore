@@ -1,3 +1,4 @@
 node_modules/
 configurations/config.env
 public/
+.vscode/
