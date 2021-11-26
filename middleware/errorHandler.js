@@ -12,7 +12,7 @@ function errorHandler(err, req, res, next) {
 	if (error.code === 11000) {
 		// check error message for which collection failed
 		// delete files in public/temp folder
-		if (req.files.prodImage) deleteFiles(req.files.prodImage);
+		if (req.files.profileImage) deleteFiles(req.files.profileImage);
 		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
 
 		if (_.isEqual(error.keyPattern, { bootcamp: 1, user: 1 }))

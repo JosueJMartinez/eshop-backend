@@ -37,7 +37,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 	});
 	if (!foundCategory) {
 		// delete files in public/temp folder
-		if (req.files.prodImage) deleteFiles(req.files.prodImage);
+		if (req.files.profileImage) deleteFiles(req.files.profileImage);
 		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
 
 		throw new ErrorResponse(`Category ${req.body.category} does not exist`, 400);
@@ -52,8 +52,8 @@ exports.createProduct = asyncHandler(async (req, res) => {
 	};
 
 	// modify the path for image and gallery
-	if (req.files.prodImage)
-		req.body.image = `./public/products/${req.body.name}/${req.files.prodImage[0].filename}`;
+	if (req.files.profileImage)
+		req.body.image = `./public/products/${req.body.name}/${req.files.profileImage[0].filename}`;
 	if (req.files.uploadProdGallery)
 		req.body.images = req.files.uploadProdGallery.map(
 			image => `./public/products/${req.body.name}/${image.filename}`
@@ -67,7 +67,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 
 	if (!addedProduct) {
 		// delete files in public/temp folder
-		if (req.files.prodImage) deleteFiles(req.files.prodImage);
+		if (req.files.profileImage) deleteFiles(req.files.profileImage);
 		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
 		throw new ErrorResponse(`Unable to create product please try again`, 500);
 	}
@@ -76,7 +76,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 	checkDirectory(`./public/products/${req.body.name}`);
 
 	// move files from temp to public/products
-	if (req.files.prodImage) mvFilesFromTmpToDest(req.files.prodImage, [addedProduct.image]);
+	if (req.files.profileImage) mvFilesFromTmpToDest(req.files.profileImage, [addedProduct.image]);
 	if (req.files.uploadProdGallery)
 		mvFilesFromTmpToDest(req.files.uploadProdGallery, addedProduct.images);
 
