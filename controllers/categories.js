@@ -1,6 +1,7 @@
 const Category = require('../models/Category');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
+const { checkDirectory, mvFilesFromTmpToDest, deleteFiles } = require('../utils/utils');
 
 //  @desc     Get all categories
 //  @route    Get /api/v1/categories
@@ -20,8 +21,7 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
 		select: 'name',
 	});
 
-	if (!category)
-		throw new ErrorResponse(`1. Category ${catId} not found`, 404, catId);
+	if (!category) throw new ErrorResponse(`1. Category ${catId} not found`, 404, catId);
 
 	res.status(200).json({
 		success: true,
@@ -33,14 +33,30 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
 //  @route    Post /api/v1/categories
 //  @access   Private
 exports.createCategory = asyncHandler(async (req, res, next) => {
+	// modify the path for image and gallery
+	if (req.files.profileImage)
+		req.body.icon = `./public/categories/${req.body.name}/${req.files.profileImage[0].filename}`;
+
 	const newCategory = new Category({
 		...req.body,
 		user: req.user,
 	});
+
 	const addedCategory = await newCategory.save();
 
-	if (!addedCategory)
+	if (!addedCategory) {
+		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
 		throw new ErrorResponse(`1. Category could not be created`, 404);
+	}
+
+	// check if directory exists to store images if not create it
+	checkDirectory(`./public/categories/${req.body.name}`);
+
+	// move files from temp to public/categories
+	// delete upload gallery if one was uploaded
+	if (req.files.profileImage) mvFilesFromTmpToDest(req.files.profileImage, [addedCategory.icon]);
+	if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
 
 	res.status(201).json({
 		success: true,
@@ -56,18 +72,10 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 	const currentUser = req.user;
 	const updateCategory = req.body;
 	let category = await Category.findById(catId);
-	if (!category)
-		throw new ErrorResponse(
-			`Resource not found with id of ${catId}`,
-			404,
-			catId
-		);
+	if (!category) throw new ErrorResponse(`Resource not found with id of ${catId}`, 404, catId);
 
 	// Make sure user is category owner or admin if return ErrorResponse
-	if (
-		category.user.toString() !== currentUser.id &&
-		currentUser.role !== 'admin'
-	)
+	if (category.user.toString() !== currentUser.id && currentUser.role !== 'admin')
 		throw new ErrorResponse(
 			`User ${req.user.id} is not authorized to update category ${catId}`,
 			401
@@ -100,18 +108,10 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
 	const category = await Category.findById(catId);
 	const currentUser = req.user;
 
-	if (!category)
-		throw new ErrorResponse(
-			`Resource not found with id of ${catId}`,
-			404,
-			catId
-		);
+	if (!category) throw new ErrorResponse(`Resource not found with id of ${catId}`, 404, catId);
 
 	// Make sure user is category owner or admin if return ErrorResponse
-	if (
-		category.user.toString() !== currentUser.id &&
-		currentUser.role !== 'admin'
-	)
+	if (currentUser.role !== 'admin')
 		throw new ErrorResponse(
 			`User ${req.user.id} is not authorized to update category ${catId}`,
 			401
@@ -119,11 +119,7 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
 
 	const catRemoved = await category.remove();
 	if (!catRemoved)
-		throw new ErrorResponse(
-			`Unable to delete resource with id of ${catId}`,
-			404,
-			catId
-		);
+		throw new ErrorResponse(`Unable to delete resource with id of ${catId}`, 404, catId);
 
 	res.status(200).json({
 		success: true,

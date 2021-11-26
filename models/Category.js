@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const fs = require('fs');
 
 const opts = { toJSON: { virtuals: true }, toObject: { virtuals: true } };
 
@@ -37,6 +38,13 @@ CategorySchema.virtual('products', {
 	localField: '_id',
 	foreignField: 'category',
 	justOne: false,
+});
+
+CategorySchema.pre('remove', function (next) {
+	const idx = this.icon.indexOf('/', 20);
+	const path = this.icon.substring(0, idx);
+	fs.rmSync(path, { recursive: true });
+	next();
 });
 
 module.exports = mongoose.model('Category', CategorySchema);
