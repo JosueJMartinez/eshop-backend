@@ -7,6 +7,8 @@ exports.checkFor = (checker, message, errorCode) => {
 	}
 };
 
+// @desc Checks if directory exists if not creates it
+// @param string directory to check
 exports.checkDirectory = (dir, i = 0) => {
 	const arr = dir.split('/');
 	if (arr[i] === '..' || arr[i] === '.') {
