@@ -18,12 +18,17 @@ const imageFilter = function (req, file, cb) {
 	cb(null, true);
 };
 
+// @desc middleware to upload the images to temp folder
+// @return {void}
 exports.upload = multer({ storage: storage, fileFilter: imageFilter }).fields([
 	{ name: 'prodImage', maxCount: 1 },
 	{ name: 'uploadProdGallery', maxCount: 10 },
 ]);
 
-exports.makeTempDir = function (req, res, next) {
-	checkDirectory('./public/tmp');
+// @desc middleware to check if the directory exists if not create it
+// @param {string} input - the directory to check
+// @return {void}
+exports.makeDir = input => (req, res, next) => {
+	checkDirectory(input);
 	next();
 };

@@ -11,7 +11,7 @@ const Product = require('../models/Product');
 const advancedResults = require('../middleware/advancedResults');
 const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
-const { upload, makeTempDir } = require('../middleware/upload');
+const { upload, makeDir } = require('../middleware/upload');
 
 router
 	.route('/:productId')
@@ -34,6 +34,6 @@ router
 		}),
 		getProducts
 	)
-	.post(protect, authorize('publisher', 'admin'), makeTempDir, upload, createProduct);
+	.post(protect, authorize('publisher', 'admin'), makeDir('./public/tmp'), upload, createProduct);
 
 module.exports = router;
