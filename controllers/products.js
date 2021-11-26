@@ -3,7 +3,7 @@ const Product = require('../models/Product'),
 	ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('../middleware/async');
 const { checkDirectory, mvFilesFromTmpToDest, deleteFiles } = require('../utils/utils');
-const fs = require('fs');
+
 //  @desc     Get all products
 //  @route    Get /api/v1/products
 //  @route    Get /api/v1/products
