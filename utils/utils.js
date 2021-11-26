@@ -35,6 +35,8 @@ exports.mvFilesFromTmpToDest = (images, pathes) => {
 	});
 };
 
+// Removes files from tmp directory
+// @param string array of files to remove
 exports.deleteFiles = files => {
 	files.forEach(file => {
 		fs.unlinkSync(file.path);

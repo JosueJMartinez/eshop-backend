@@ -3,7 +3,7 @@ const Product = require('../models/Product'),
 	ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('../middleware/async');
 const { checkDirectory, mvFilesFromTmpToDest, deleteFiles } = require('../utils/utils');
-
+const fs = require('fs');
 //  @desc     Get all products
 //  @route    Get /api/v1/products
 //  @route    Get /api/v1/products
@@ -43,9 +43,13 @@ exports.createProduct = asyncHandler(async (req, res) => {
 		throw new ErrorResponse(`Category ${req.body.category} does not exist`, 400);
 	}
 
-	req.body.category = foundCategory._id;
-	req.body.isFeatured = req.body.isFeatured ? true : false;
-	req.body.name = req.body.name.trim();
+	req.body = {
+		...req.body,
+		category: foundCategory._id,
+		isFeatured: req.body.isFeatured ? true : false,
+		name: req.body.name.trim(),
+		owner: req.user._id,
+	};
 
 	// modify the path for image and gallery
 	if (req.files.prodImage)
@@ -61,7 +65,12 @@ exports.createProduct = asyncHandler(async (req, res) => {
 
 	const addedProduct = await newProduct.save();
 
-	if (!addedProduct) throw new ErrorResponse(`Unable to create product please try again`, 500);
+	if (!addedProduct) {
+		// delete files in public/temp folder
+		if (req.files.prodImage) deleteFiles(req.files.prodImage);
+		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+		throw new ErrorResponse(`Unable to create product please try again`, 500);
+	}
 
 	// check if directory exists to store images if not create it
 	checkDirectory(`./public/products/${req.body.name}`);
@@ -118,7 +127,7 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
 
 	// Make sure user is product owner or admin if return ErrorResponse
-	if (product.user.toString() !== currentUser.id && currentUser.role !== 'admin')
+	if (product.owner.toString() !== currentUser.id && currentUser.role !== 'admin')
 		throw new ErrorResponse(
 			`User ${req.user.id} is not authorized to update product ${productId}`,
 			401

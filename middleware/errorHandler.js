@@ -1,5 +1,6 @@
 const ErrorResponse = require('../utils/errorResponse');
 const _ = require('lodash');
+const { deleteFiles } = require('../utils/utils');
 
 function errorHandler(err, req, res, next) {
 	if (process.env.ENVIRONMENT === 'dev') console.log(err);

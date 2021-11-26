@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const fs = require('fs');
 
 const opts = { toJSON: { virtuals: true } };
 
@@ -53,6 +54,11 @@ const ProductSchema = new mongoose.Schema(
 			ref: 'Category',
 			required: true,
 		},
+		owner: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'User',
+			required: true,
+		},
 	},
 	opts
 );
@@ -64,6 +70,13 @@ const ProductSchema = new mongoose.Schema(
 // Slugify product name
 ProductSchema.pre('save', function (next) {
 	this.slug = slugify(this.name, { lower: true, replacement: '_' });
+	next();
+});
+
+ProductSchema.pre('remove', function (next) {
+	const idx = this.image.indexOf('/', 18);
+	const path = this.image.substring(0, idx);
+	fs.rmSync(path, { recursive: true });
 	next();
 });
 
