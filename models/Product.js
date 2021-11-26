@@ -26,7 +26,11 @@ const ProductSchema = new mongoose.Schema(
 			default: '',
 		},
 		image: { type: String, trim: true, default: '' },
-		images: { type: [String], trim: true },
+		images: {
+			type: [String],
+			trim: true,
+			validate: [val => val.length <= 10, 'Can only upload 10 photos for gallery'],
+		},
 		price: {
 			type: Number,
 			required: [true, 'Please add a price'],
