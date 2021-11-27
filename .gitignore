@@ -1,4 +1,6 @@
 node_modules/
 configurations/config.env
-public/
 .vscode/
+public/*
+!public/default.png
+!public/tmp/.gitkeep
