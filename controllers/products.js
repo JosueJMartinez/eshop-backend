@@ -332,11 +332,6 @@ exports.deleteProductImages = asyncHandler(async (req, res, next) => {
 	if (req.body.imagesToDelete.length > product.images.length)
 		throw new ErrorResponse(`You can only delete ${product.images.length} images`, 400);
 
-	// construct path for images to delete
-	// const imagesToDelete = req.body.imagesToDelete.map(idxImage => {
-	// 	return { path: product.images[idxImage] };
-	// });
-
 	const imagesToDeletePath = req.body.imagesToDelete.map(idxImage => {
 		// check make sure idxImage is not out of range or is an actual number
 		if (isNaN(idxImage) || idxImage >= product.images.length)
