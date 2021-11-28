@@ -3,6 +3,7 @@ const Product = require('../models/Product'),
 	ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('../middleware/async');
 const { checkDirectory, mvFilesFromTmpToDest, deleteFiles } = require('../utils/utils');
+const fs = require('fs');
 
 //  @desc     Get all products
 //  @route    Get /api/v1/products
@@ -38,7 +39,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 	if (!foundCategory) {
 		// delete files in public/temp folder
 		if (req.files.profileImage) deleteFiles(req.files.profileImage);
-		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
 
 		throw new ErrorResponse(`Category ${req.body.category} does not exist`, 400);
 	}
@@ -54,8 +55,8 @@ exports.createProduct = asyncHandler(async (req, res) => {
 	// modify the path for image and gallery
 	if (req.files.profileImage)
 		req.body.image = `./public/products/${req.body.name}/${req.files.profileImage[0].filename}`;
-	if (req.files.uploadProdGallery)
-		req.body.images = req.files.uploadProdGallery.map(
+	if (req.files.uploadGallery)
+		req.body.images = req.files.uploadGallery.map(
 			image => `./public/products/${req.body.name}/${image.filename}`
 		);
 
@@ -68,7 +69,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 	if (!addedProduct) {
 		// delete files in public/temp folder
 		if (req.files.profileImage) deleteFiles(req.files.profileImage);
-		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
 		throw new ErrorResponse(`Unable to create product please try again`, 500);
 	}
 
@@ -77,8 +78,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 
 	// move files from temp to public/products
 	if (req.files.profileImage) mvFilesFromTmpToDest(req.files.profileImage, [addedProduct.image]);
-	if (req.files.uploadProdGallery)
-		mvFilesFromTmpToDest(req.files.uploadProdGallery, addedProduct.images);
+	if (req.files.uploadGallery) mvFilesFromTmpToDest(req.files.uploadGallery, addedProduct.images);
 
 	res.status(201).json({
 		success: true,
@@ -93,7 +93,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	const { productId } = { ...req.params };
 	const currentUser = req.user;
 	const updateProduct = req.body;
-	let product = await Product.findById(productId);
+	const product = await Product.findById(productId);
 	if (!product)
 		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
 
@@ -107,14 +107,43 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 			401
 		);
 
-	product = await Product.findByIdAndUpdate(productId, updateProduct, {
+	// If product name is updated, update image and images path
+	if (updateProduct.name) {
+		// check if directory exists to store images if not create it
+		checkDirectory(`./public/products/${updateProduct.name}`);
+		if (product.image !== './public/default.png')
+			updateProduct.image = `./public/products/${updateProduct.name}/${product.image
+				.split('/')
+				.pop()}`;
+		if (product.images.length > 0)
+			updateProduct.images = product.images.map(
+				image => `./public/products/${updateProduct.name}/${image.split('/').pop()}`
+			);
+	}
+	const updatedProduct = await Product.findByIdAndUpdate(productId, updateProduct, {
 		new: true,
 		runValidators: true,
 	});
 
+	// Move image and images in product path to new path in updatedProduct
+	if (updateProduct.name) {
+		if (product.image !== './public/default.png')
+			mvFilesFromTmpToDest([{ path: product.image }], [updatedProduct.image]);
+		// TODO: fix this keep getting undefined for image path
+		if (product.images.length > 0) {
+			const oldPathes = product.images.map(image => {
+				return { path: image };
+			});
+			mvFilesFromTmpToDest(oldPathes, updatedProduct.images);
+			const idx = product.image.indexOf('/', 18);
+			const path = product.image.substring(0, idx);
+			fs.rmSync(path, { recursive: true });
+		}
+	}
+
 	res.status(200).json({
 		success: true,
-		data: product,
+		data: updatedProduct,
 	});
 });
 
@@ -150,7 +179,7 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 // @access	 Private
 exports.updateProductImage = asyncHandler(async (req, res, next) => {
 	// if gallery images are uploaded delete them
-	if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
 
 	// if no profile image uploaded return ErrorResponse
 	if (!req.files.profileImage) {

@@ -22,5 +22,5 @@ const imageFilter = function (req, file, cb) {
 // @return {void}
 exports.upload = multer({ storage: storage, fileFilter: imageFilter }).fields([
 	{ name: 'profileImage', maxCount: 1 },
-	{ name: 'uploadProdGallery', maxCount: 10 },
+	{ name: 'uploadGallery', maxCount: 10 },
 ]);

@@ -27,8 +27,8 @@ exports.checkDirectory = (dir, i = 0) => {
 };
 
 // Moves files from one directory to another
-// @param object files to move
-// @param object destDirectory to move files to
+// @param images object files to move
+// @param pathes arr destDirectory to move files to
 exports.mvFilesFromTmpToDest = (images, pathes) => {
 	images.forEach(async (image, i) => {
 		fs.rename(image.path, pathes[i], err => {

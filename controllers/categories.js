@@ -46,7 +46,7 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 
 	if (!addedCategory) {
 		if (req.files.profileImage) deleteFiles(req.files.profileImage);
-		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
 		throw new ErrorResponse(`1. Category could not be created`, 404);
 	}
 
@@ -56,7 +56,7 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 	// move files from temp to public/categories
 	// delete upload gallery if one was uploaded
 	if (req.files.profileImage) mvFilesFromTmpToDest(req.files.profileImage, [addedCategory.icon]);
-	if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
 
 	res.status(201).json({
 		success: true,
