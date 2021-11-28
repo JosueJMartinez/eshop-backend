@@ -3,5 +3,5 @@ configurations/config.env
 .vscode/
 public/**
 !public/default.png
-!public/**
+!public/*
 !public/**/.gitkeep
