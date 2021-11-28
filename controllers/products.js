@@ -337,7 +337,12 @@ exports.deleteProductImages = asyncHandler(async (req, res, next) => {
 	// 	return { path: product.images[idxImage] };
 	// });
 
-	const imagesToDeletePath = req.body.imagesToDelete.map(idxImage => product.images[idxImage]);
+	const imagesToDeletePath = req.body.imagesToDelete.map(idxImage => {
+		// check make sure idxImage is not out of range or is an actual number
+		if (isNaN(idxImage) || idxImage >= product.images.length)
+			throw new ErrorResponse(`Image not found`, 404);
+		return product.images[idxImage];
+	});
 
 	// remove imagesToDelete array from product.images array
 	const updatedProductImages = product.images.filter(image => !imagesToDeletePath.includes(image));
