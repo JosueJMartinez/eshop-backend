@@ -4,4 +4,4 @@ configurations/config.env
 public/**
 !public/default.png
 !public/*
-!public/**/.gitkeep
+

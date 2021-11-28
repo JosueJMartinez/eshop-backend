@@ -68,6 +68,7 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 //  @route    Put /api/v1/categories/:catId
 //  @access   Private
 exports.updateCategory = asyncHandler(async (req, res, next) => {
+	// TODO: move profile image to a folder if name changes
 	const { catId } = { ...req.params };
 	const currentUser = req.user;
 	const updateCategory = req.body;
@@ -104,6 +105,7 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 //  @route    Delete /api/v1/categories/:catId
 //  @access   Private
 exports.deleteCategory = asyncHandler(async (req, res, next) => {
+	// TODO: delete category images from a folder
 	const { catId } = { ...req.params };
 	const category = await Category.findById(catId);
 	const currentUser = req.user;
@@ -126,3 +128,5 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
 		data: {},
 	});
 });
+
+// TODO: Update category image

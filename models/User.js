@@ -71,6 +71,10 @@ const UserSchema = new mongoose.Schema(
 			type: Date,
 			default: Date.now,
 		},
+		profileImage: {
+			type: String,
+			default: './public/defaultProfile.png',
+		},
 	},
 	opts
 );

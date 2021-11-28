@@ -11,6 +11,7 @@ const User = require('../models/User'),
 //  @access   Public
 exports.register = asyncHandler(async (req, res, next) => {
 	// check make sure admin is not a role selected while registering
+	// TODO: save user profile image to a folder
 	checkFor(
 		req.body.role === 'admin',
 		`Cannot create a user with admin role do not have necessary permissions`,
@@ -84,6 +85,7 @@ exports.getCurrentUser = asyncHandler(async (req, res, next) => {
 //  @route    Put /api/v1/auth/updateMe
 //  @access   Private
 exports.updateUser = asyncHandler(async (req, res, next) => {
+	// Add support to move profile image to a folder if name changes
 	// check make sure password is being updated
 	checkFor(req.body.password, 'Cannot update since old password was not validated', 422);
 	// check make sure unable to update your role to admin
@@ -155,6 +157,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 //  @route    Delete /api/v1/auth/deleteaccount
 //  @access   Private
 exports.deleteUser = asyncHandler(async (req, res, next) => {
+	// TODO: delete user profile image from a folder
 	const user = await User.findById(req.user.id);
 
 	if (!user) throw new ErrorResponse(`User does not exist with id: ${userId}`, 404);
@@ -200,3 +203,5 @@ const sendTokenResponse = (user, statusCode, res) => {
 
 	res.status(statusCode).json({ success: true, token });
 };
+
+// TODO: Add route to update profile Image

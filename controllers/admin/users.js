@@ -25,6 +25,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 //  @route    Put /api/v1/auth/users/:userId
 //  @access   Private/Admin
 exports.updateUser = asyncHandler(async (req, res, next) => {
+	// TODO: add move profile image to new folder if name changes
 	// while updating user check make sure password is not being updated
 	checkFor(req.body.password, 'Cannot update since old password was not validated', 422);
 
@@ -46,6 +47,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 //  @route    Post /api/v1/auth/users
 //  @access   Private/Admin
 exports.createUser = asyncHandler(async (req, res, next) => {
+	// TODO: save user profile image to a folder
 	const newUser = await User.create(req.body);
 
 	res.status(201).json({ success: true, data: newUser });
@@ -55,6 +57,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 //  @route    Delete /api/v1/auth/users/:userId
 //  @access   Private/Admin
 exports.deleteUser = asyncHandler(async (req, res, next) => {
+	// TODO: delete user profile image from a folder
 	const userId = req.params.userId;
 	const user = await User.findById(userId);
 
@@ -69,3 +72,5 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
 		data: {},
 	});
 });
+
+// TODO: add route to update user profile image
