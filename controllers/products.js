@@ -129,7 +129,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	if (updateProduct.name) {
 		if (product.image !== './public/default.png')
 			mvFilesFromTmpToDest([{ path: product.image }], [updatedProduct.image]);
-		// TODO: fix this keep getting undefined for image path
+
 		if (product.images.length > 0) {
 			const oldPathes = product.images.map(image => {
 				return { path: image };
