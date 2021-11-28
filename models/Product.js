@@ -25,7 +25,7 @@ const ProductSchema = new mongoose.Schema(
 			maxLength: [500, 'Length cannot be more than 500 characters'],
 			default: '',
 		},
-		image: { type: String, trim: true, default: '' },
+		image: { type: String, trim: true, default: './public/default.png' },
 		images: {
 			type: [String],
 			trim: true,
