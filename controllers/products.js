@@ -236,3 +236,132 @@ exports.updateProductImage = asyncHandler(async (req, res, next) => {
 		data: updatedProduct,
 	});
 });
+
+// @desc		 Update product images
+// @route		 Put /api/v1/products/:productId/images
+// @access	 Private
+exports.updateProductImages = asyncHandler(async (req, res, next) => {
+	// if profile image is uploaded delete it
+	if (req.files.profileImage) deleteFiles(req.files.profileImage);
+
+	// if no gallery images uploaded return ErrorResponse
+	if (!req.files.uploadGallery) {
+		throw new ErrorResponse(`Please upload at least one image`, 400);
+	}
+
+	const { productId } = { ...req.params };
+	const currentUser = req.user;
+
+	// check make sure product exists
+	const product = await Product.findById(productId);
+	// if no product return ErrorResponse and delete images from tmp folder
+	if (!product) {
+		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
+		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
+	}
+
+	// Make sure user is product owner or admin if return ErrorResponse
+	if (product.owner.toString() !== currentUser.id && currentUser.role !== 'admin') {
+		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update product ${productId}`,
+			401
+		);
+	}
+
+	// Make sure new images plus current does not exceed max images
+	if (product.images.length + req.files.uploadGallery.length > 10) {
+		deleteFiles(req.files.uploadGallery);
+		throw new ErrorResponse(`You can only upload 10 images`, 400);
+	}
+
+	checkDirectory(`./public/products/${product.name}`);
+
+	// construct path for new images
+	const updatedProductImages = req.files.uploadGallery.map(
+		image => `./public/products/${product.name}/${image.filename}`
+	);
+
+	const totalImages = [...updatedProductImages, ...product.images];
+
+	// update product with new path for images
+	const updatedProduct = await Product.findByIdAndUpdate(
+		productId,
+		{
+			images: totalImages,
+		},
+		{
+			new: true,
+			runValidators: true,
+		}
+	);
+
+	// move new images to path from updatedProduct images
+	mvFilesFromTmpToDest(req.files.uploadGallery, updatedProduct.images);
+
+	res.status(200).json({
+		success: true,
+		data: updatedProduct,
+	});
+});
+
+// @desc		 delete images from gallery
+// @route		 Delete /api/v1/products/:productId/images
+// @access	 Private
+exports.deleteProductImages = asyncHandler(async (req, res, next) => {
+	const { productId } = { ...req.params };
+	const currentUser = req.user;
+
+	// check make sure product exists
+	const product = await Product.findById(productId);
+	// if no product return ErrorResponse
+	if (!product) {
+		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
+	}
+
+	// Make sure user is product owner or admin if return ErrorResponse
+	if (product.owner.toString() !== currentUser.id && currentUser.role !== 'admin')
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update product ${productId}`,
+			401
+		);
+
+	if (!req.body.imagesToDelete || !req.body.imagesToDelete.length)
+		throw new ErrorResponse(`Please select at least one image to delete`, 400);
+
+	if (req.body.imagesToDelete.length > product.images.length)
+		throw new ErrorResponse(`You can only delete ${product.images.length} images`, 400);
+
+	// construct path for images to delete
+	// const imagesToDelete = req.body.imagesToDelete.map(idxImage => {
+	// 	return { path: product.images[idxImage] };
+	// });
+
+	const imagesToDeletePath = req.body.imagesToDelete.map(idxImage => product.images[idxImage]);
+
+	// remove imagesToDelete array from product.images array
+	const updatedProductImages = product.images.filter(image => !imagesToDeletePath.includes(image));
+	// remove images from product
+	const updatedProduct = await Product.findByIdAndUpdate(
+		productId,
+		{
+			images: updatedProductImages,
+		},
+		{
+			new: true,
+			runValidators: true,
+		}
+	);
+
+	const imagesToDelete = imagesToDeletePath.map(image => {
+		return { path: image };
+	});
+
+	// delete images from gallery
+	deleteFiles(imagesToDelete);
+
+	res.status(200).json({
+		success: true,
+		data: updatedProduct,
+	});
+});

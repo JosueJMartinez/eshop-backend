@@ -6,6 +6,8 @@ const {
 	updateProduct,
 	deleteProduct,
 	updateProductImage,
+	updateProductImages,
+	deleteProductImages,
 } = require('../controllers/products');
 const Product = require('../models/Product');
 const advancedResults = require('../middleware/advancedResults');
@@ -17,6 +19,10 @@ router
 	.route('/:productId/image')
 	.put(protect, authorize('publisher', 'admin'), upload, updateProductImage);
 
+router
+	.route('/:productId/images')
+	.put(protect, authorize('publisher', 'admin'), upload, updateProductImages)
+	.delete(protect, authorize('publisher', 'admin'), deleteProductImages);
 router
 	.route('/:productId')
 	.get(getProduct)
