@@ -10,7 +10,7 @@ const Category = require('../models/Category');
 const advancedResults = require('../middleware/advancedResults');
 const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
-const { upload, makeDir } = require('../middleware/upload');
+const { upload } = require('../middleware/upload');
 
 router
 	.route('/:catId')
@@ -26,6 +26,6 @@ router
 		}),
 		getCategories
 	)
-	.post(protect, authorize('admin'), makeDir('./public/tmp'), upload, createCategory);
+	.post(protect, authorize('admin'), upload, createCategory);
 
 module.exports = router;

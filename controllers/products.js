@@ -97,8 +97,11 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	if (!product)
 		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
 
+	if (updateProduct.image) delete updateProduct.image;
+	if (updateProduct.images) delete updateProduct.images;
+
 	// Make sure user is product owner or admin if return ErrorResponse
-	if (product.user.toString() !== currentUser.id && currentUser.role !== 'admin')
+	if (product.owner.toString() !== currentUser.id && currentUser.role !== 'admin')
 		throw new ErrorResponse(
 			`User ${req.user.id} is not authorized to update product ${productId}`,
 			401
@@ -139,5 +142,68 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 	res.status(200).json({
 		success: true,
 		data: {},
+	});
+});
+
+// @desc		 Update product image
+// @route		 Put /api/v1/products/:productId/image
+// @access	 Private
+exports.updateProductImage = asyncHandler(async (req, res, next) => {
+	// if gallery images are uploaded delete them
+	if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+
+	// if no profile image uploaded return ErrorResponse
+	if (!req.files.profileImage) {
+		throw new ErrorResponse(`Please upload an image`, 400);
+	}
+
+	const { productId } = { ...req.params };
+	const currentUser = req.user;
+
+	// check make sure product exists
+	const product = await Product.findById(productId);
+	// if no product return ErrorResponse and delete image from tmp folder
+	if (!product) {
+		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
+	}
+
+	// Make sure user is product owner or admin if return ErrorResponse
+	if (product.owner.toString() !== currentUser.id && currentUser.role !== 'admin') {
+		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update product ${productId}`,
+			401
+		);
+	}
+
+	checkDirectory(`./public/products/${product.name}`);
+
+	// construct path for new image
+	const updatedProductImage = {
+		image: `./public/products/${product.name}/${req.files.profileImage[0].filename}`,
+	};
+
+	const oldProdImage = { path: product.image };
+
+	// update product with new path for image
+	const updatedProduct = await Product.findByIdAndUpdate(productId, updatedProductImage, {
+		new: true,
+		runValidators: true,
+	});
+
+	// delete old image unless it is default image
+	if (oldProdImage.path !== './public/default.png') {
+		try {
+			deleteFiles([oldProdImage]);
+		} catch (err) {}
+	}
+
+	// move new image to path from updatedProduct image
+	mvFilesFromTmpToDest(req.files.profileImage, [updatedProduct.image]);
+
+	res.status(200).json({
+		success: true,
+		data: updatedProduct,
 	});
 });
