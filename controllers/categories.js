@@ -86,14 +86,6 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 	}
 
 	category = await category.save();
-	// await Category.findOneAndUpdate(
-	// 	{ slug: catId },
-	// 	updateCategory,
-	// 	{
-	// 		new: true,
-	// 		runValidators: true,
-	// 	}
-	// );
 
 	res.status(200).json({
 		success: true,

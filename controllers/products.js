@@ -2,7 +2,12 @@ const Product = require('../models/Product'),
 	Category = require('../models/Category'),
 	ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('../middleware/async');
-const { checkDirectory, mvFilesFromTmpToDest, deleteFiles } = require('../utils/utils');
+const {
+	checkDirectory,
+	mvFilesFromTmpToDest,
+	deleteFiles,
+	checkFileExists,
+} = require('../utils/utils');
 const fs = require('fs');
 
 //  @desc     Get all products
@@ -111,15 +116,23 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	if (updateProduct.name) {
 		// check if directory exists to store images if not create it
 		checkDirectory(`./public/products/${updateProduct.name}`);
-		if (product.image !== './public/default.png')
+
+		// modify the path for image and gallery
+		if (product.image !== './public/default.png' && checkFileExists(product.image))
 			updateProduct.image = `./public/products/${updateProduct.name}/${product.image
 				.split('/')
 				.pop()}`;
-		if (product.images.length > 0)
-			updateProduct.images = product.images.map(
-				image => `./public/products/${updateProduct.name}/${image.split('/').pop()}`
-			);
+		else updateProduct.image = `./public/default.png`;
 	}
+	const oldPathes = [];
+	// FIXME: this is not working related to bug below
+	if (product.images.length > 0)
+		updateProduct.images = product.images.filter(image => {
+			if (checkFileExists(image)) {
+				oldPathes.push({ path: image });
+				return `./public/products/${updateProduct.name}/${image.split('/').pop()}`;
+			}
+		});
 	const updatedProduct = await Product.findByIdAndUpdate(productId, updateProduct, {
 		new: true,
 		runValidators: true,
@@ -129,12 +142,10 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	if (updateProduct.name) {
 		if (product.image !== './public/default.png')
 			mvFilesFromTmpToDest([{ path: product.image }], [updatedProduct.image]);
-
+		// TODO: fix bug
 		if (product.images.length > 0) {
-			const oldPathes = product.images.map(image => {
-				return { path: image };
-			});
-			mvFilesFromTmpToDest(oldPathes, updatedProduct.images);
+			mvFilesFromTmpToDest(oldPathes, updatedProduct.images, next);
+
 			const idx = product.image.indexOf('/', 18);
 			const path = product.image.substring(0, idx);
 			fs.rmSync(path, { recursive: true });

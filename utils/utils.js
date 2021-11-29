@@ -31,16 +31,21 @@ exports.checkDirectory = (dir, i = 0) => {
 // @param pathes arr destDirectory to move files to
 exports.mvFilesFromTmpToDest = (images, pathes) => {
 	images.forEach(async (image, i) => {
-		fs.rename(image.path, pathes[i], err => {
-			if (err) throw new ErrorResponse(`Unable to move image to new location`, 500);
-		});
+		fs.renameSync(image.path, pathes[i]);
 	});
 };
 
-// Removes files from tmp directory
-// @param string array of files to remove
+// @desc Removes files from tmp directory
+// @param array of pathes to remove
 exports.deleteFiles = files => {
 	files.forEach(file => {
 		fs.unlinkSync(file.path);
 	});
+};
+
+// @desc Checks to see if the file exists
+// @param string of file path to check
+// @returns boolean true or false
+exports.checkFileExists = filePath => {
+	return fs.existsSync(filePath);
 };
