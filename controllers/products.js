@@ -125,14 +125,16 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 		else updateProduct.image = `./public/default.png`;
 	}
 	const oldPathes = [];
-	// FIXME: this is not working related to bug below
+
 	if (product.images.length > 0)
-		updateProduct.images = product.images.filter(image => {
-			if (checkFileExists(image)) {
-				oldPathes.push({ path: image });
-				return `./public/products/${updateProduct.name}/${image.split('/').pop()}`;
-			}
-		});
+		updateProduct.images = product.images
+			.filter(image => {
+				if (checkFileExists(image)) {
+					oldPathes.push({ path: image });
+					return true;
+				}
+			})
+			.map(image => `./public/products/${updateProduct.name}/${image.split('/').pop()}`);
 	const updatedProduct = await Product.findByIdAndUpdate(productId, updateProduct, {
 		new: true,
 		runValidators: true,
@@ -142,7 +144,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	if (updateProduct.name) {
 		if (product.image !== './public/default.png')
 			mvFilesFromTmpToDest([{ path: product.image }], [updatedProduct.image]);
-		// TODO: fix bug
+
 		if (product.images.length > 0) {
 			mvFilesFromTmpToDest(oldPathes, updatedProduct.images, next);
 
