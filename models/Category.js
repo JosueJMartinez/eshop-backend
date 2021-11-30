@@ -20,6 +20,7 @@ const CategorySchema = new mongoose.Schema(
 		icon: {
 			type: String,
 			required: [true, 'Please add an icon for category'],
+			default: './public/default.png',
 		},
 		slug: { type: String, unqiue: true },
 	},

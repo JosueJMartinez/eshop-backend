@@ -36,17 +36,22 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 	// modify the path for image and gallery
 	if (req.files.profileImage)
 		req.body.icon = `./public/categories/${req.body.name}/${req.files.profileImage[0].filename}`;
+	// remove files for a gallery if they were uploaded
+	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
+
+	// remove image and images if there are any in the req.body
+	if (updateProduct.image) delete updateProduct.image;
+	if (updateProduct.images) delete updateProduct.images;
 
 	const newCategory = new Category({
 		...req.body,
-		user: req.user,
 	});
 
 	const addedCategory = await newCategory.save();
 
 	if (!addedCategory) {
 		if (req.files.profileImage) deleteFiles(req.files.profileImage);
-		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
+
 		throw new ErrorResponse(`1. Category could not be created`, 404);
 	}
 
