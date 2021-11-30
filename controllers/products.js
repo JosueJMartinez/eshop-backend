@@ -7,6 +7,7 @@ const {
 	mvFilesFromTmpToDest,
 	deleteFiles,
 	checkFileExists,
+	removeImagesFromObj,
 } = require('../utils/utils');
 const fs = require('fs');
 
@@ -102,8 +103,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	if (!product)
 		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
 
-	if (updateProduct.image) delete updateProduct.image;
-	if (updateProduct.images) delete updateProduct.images;
+	removeImagesFromObj(updateProduct);
 
 	// Make sure user is product owner or admin if return ErrorResponse
 	if (product.owner.toString() !== currentUser.id && currentUser.role !== 'admin')
@@ -112,12 +112,11 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 			401
 		);
 
-	// If product name is updated, update image and images path
+	// If updatedProduct name is updated, update image path with new name
 	if (updateProduct.name) {
-		// check if directory exists to store images if not create it
 		checkDirectory(`./public/products/${updateProduct.name}`);
 
-		// modify the path for image and gallery
+		// modify the path for image
 		if (product.image !== './public/default.png' && checkFileExists(product.image))
 			updateProduct.image = `./public/products/${updateProduct.name}/${product.image
 				.split('/')
@@ -126,6 +125,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	}
 	const oldPathes = [];
 
+	// If updatedProduct name is updated, update images path with new name
 	if (product.images.length > 0)
 		updateProduct.images = product.images
 			.filter(image => {
@@ -135,6 +135,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 				}
 			})
 			.map(image => `./public/products/${updateProduct.name}/${image.split('/').pop()}`);
+
 	const updatedProduct = await Product.findByIdAndUpdate(productId, updateProduct, {
 		new: true,
 		runValidators: true,

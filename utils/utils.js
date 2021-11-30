@@ -49,3 +49,10 @@ exports.deleteFiles = files => {
 exports.checkFileExists = filePath => {
 	return fs.existsSync(filePath);
 };
+
+// @desc Removes Image/Images from Object
+// @param object to remove image/images from
+function removeImagesFromObj(obj) {
+	if (obj.image) delete obj.image;
+	if (obj.images) delete obj.images;
+}

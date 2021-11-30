@@ -1,7 +1,13 @@
 const Category = require('../models/Category');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
-const { checkDirectory, mvFilesFromTmpToDest, deleteFiles } = require('../utils/utils');
+const {
+	checkDirectory,
+	mvFilesFromTmpToDest,
+	deleteFiles,
+	checkFileExists,
+	removeImagesFromObj,
+} = require('../utils/utils');
 
 //  @desc     Get all categories
 //  @route    Get /api/v1/categories
@@ -39,10 +45,6 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 	// remove files for a gallery if they were uploaded
 	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
 
-	// remove image and images if there are any in the req.body
-	if (updateProduct.image) delete updateProduct.image;
-	if (updateProduct.images) delete updateProduct.images;
-
 	const newCategory = new Category({
 		...req.body,
 	});
@@ -73,28 +75,35 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 //  @route    Put /api/v1/categories/:catId
 //  @access   Private
 exports.updateCategory = asyncHandler(async (req, res, next) => {
-	// TODO: move profile image to a folder if name changes
 	const { catId } = { ...req.params };
 	const currentUser = req.user;
 	const updateCategory = req.body;
 	let category = await Category.findById(catId);
 	if (!category) throw new ErrorResponse(`Resource not found with id of ${catId}`, 404, catId);
 
-	// Make sure user is category owner or admin if return ErrorResponse
-	if (category.user.toString() !== currentUser.id && currentUser.role !== 'admin')
-		throw new ErrorResponse(
-			`User ${req.user.id} is not authorized to update category ${catId}`,
-			401
-		);
-	for (let prop in updateCategory) {
-		category[prop] = updateCategory[prop];
+	// If updatedProduct name is updated, update image path with new name
+	if (updateCategory.name) {
+		checkDirectory(`./public/categories/${updateCategory.name}`);
+
+		// modify the path for image
+		if (category.icon !== './public/default.png' && checkFileExists(category.icon))
+			updateCategory.icon = `./public/categories/${updateCategory.name}/${category.icon
+				.split('/')
+				.pop()}`;
+		else updateCategory.icon = `./public/default.png`;
 	}
 
-	category = await category.save();
+	const updatedCategory = await Category.findByIdAndUpdate(catId, updateCategory, {
+		new: true,
+		runValidators: true,
+	});
+
+	if (updateCategory.name && category.icon !== './public/default.png')
+		mvFilesFromTmpToDest([{ path: category.icon }], [updatedCategory.icon]);
 
 	res.status(200).json({
 		success: true,
-		data: category,
+		data: updatedCategory,
 	});
 });
 
