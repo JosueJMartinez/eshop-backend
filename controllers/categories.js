@@ -111,7 +111,6 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 //  @route    Delete /api/v1/categories/:catId
 //  @access   Private
 exports.deleteCategory = asyncHandler(async (req, res, next) => {
-	// TODO: delete category images from a folder
 	const { catId } = { ...req.params };
 	const category = await Category.findById(catId);
 	const currentUser = req.user;
@@ -136,3 +135,46 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
 });
 
 // TODO: Update category image
+exports.updateCategoryImage = asyncHandler(async (req, res, next) => {
+	// if gallery images are uploaded delete them
+	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
+
+	// if no profile image uploaded return ErrorResponse
+	if (!req.files.profileImage) {
+		throw new ErrorResponse(`Please upload an image`, 400);
+	}
+
+	const { catId } = { ...req.params };
+	const currentUser = req.user;
+
+	const category = await Category.findById(catId);
+	if (!category) throw new ErrorResponse(`Resource not found with id of ${catId}`, 404, catId);
+
+	// Make sure user is category owner or admin if return ErrorResponse
+	if (currentUser.role !== 'admin')
+		throw new ErrorResponse(
+			`User ${req.user.id} is not authorized to update category ${catId}`,
+			401
+		);
+
+	// remove old image if exists
+	if (category.icon !== './public/default.png' && checkFileExists(category.icon))
+		removeImagesFromObj(category.icon);
+
+	// modify the path for image
+	if (req.files.profileImage)
+		req.body.icon = `./public/categories/${category.name}/${req.files.profileImage[0].filename}`;
+
+	// move files from temp to public/categories
+	mvFilesFromTmpToDest(req.files.profileImage, [category.icon]);
+
+	const updatedCategory = await Category.findByIdAndUpdate(catId, req.body, {
+		new: true,
+		runValidators: true,
+	});
+
+	res.status(200).json({
+		success: true,
+		data: updatedCategory,
+	});
+});
