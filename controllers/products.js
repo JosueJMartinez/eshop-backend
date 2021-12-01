@@ -103,7 +103,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	if (!product)
 		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
 
-	removeImagesFromObj(updateProduct);
+	// removeImagesFromObj(updateProduct);
 
 	// Make sure user is product owner or admin if return ErrorResponse
 	if (product.owner.toString() !== currentUser.id && currentUser.role !== 'admin')
@@ -130,7 +130,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 		updateProduct.images = product.images
 			.filter(image => {
 				if (checkFileExists(image)) {
-					oldPathes.push({ path: image });
+					oldPathes.push(image);
 					return true;
 				}
 			})
@@ -144,9 +144,9 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	// Move image and images in product path to new path in updatedProduct
 	if (updateProduct.name) {
 		if (product.image !== './public/default.png')
-			mvFilesFromTmpToDest([{ path: product.image }], [updatedProduct.image]);
+			mvFilesFromTmpToDest([product.image], [updatedProduct.image]);
 
-		if (product.images.length > 0) {
+		if (updatedProduct.images.length > 0) {
 			mvFilesFromTmpToDest(oldPathes, updatedProduct.images, next);
 
 			const idx = product.image.indexOf('/', 18);
@@ -367,12 +367,12 @@ exports.deleteProductImages = asyncHandler(async (req, res, next) => {
 		}
 	);
 
-	const imagesToDelete = imagesToDeletePath.map(image => {
-		return { path: image };
-	});
+	// const imagesToDelete = imagesToDeletePath.map(image => {
+	// 	return { path: image };
+	// });
 
 	// delete images from gallery
-	deleteFiles(imagesToDelete);
+	deleteFiles(imagesToDeletePath);
 
 	res.status(200).json({
 		success: true,

@@ -29,18 +29,28 @@ exports.checkDirectory = (dir, i = 0) => {
 // Moves files from one directory to another
 // @param images object files to move
 // @param pathes arr destDirectory to move files to
-exports.mvFilesFromTmpToDest = (images, pathes) => {
-	images.forEach(async (image, i) => {
-		fs.renameSync(image.path, pathes[i]);
-	});
+exports.mvFilesFromTmpToDest = (files, pathes) => {
+	if (typeof files[0] === 'object' && files[0] !== null)
+		files.forEach(async (file, i) => {
+			fs.renameSync(file.path, pathes[i]);
+		});
+	else if (typeof files[0] === 'string' && files[0] !== null)
+		files.forEach(async (file, i) => {
+			fs.renameSync(file, pathes[i]);
+		});
 };
 
 // @desc Removes files from tmp directory
 // @param array of pathes to remove
 exports.deleteFiles = files => {
-	files.forEach(file => {
-		fs.unlinkSync(file.path);
-	});
+	if (typeof files[0] === 'object' && files[0] !== null)
+		files.forEach(file => {
+			fs.unlinkSync(file.path);
+		});
+	else if (typeof files[0] === 'string' && files[0] !== null)
+		files.forEach(async (file, i) => {
+			fs.unlinkSync(file);
+		});
 };
 
 // @desc Checks to see if the file exists
@@ -52,7 +62,7 @@ exports.checkFileExists = filePath => {
 
 // @desc Removes Image/Images from Object
 // @param object to remove image/images from
-function removeImagesFromObj(obj) {
+exports.removeImagesFromObj = obj => {
 	if (obj.image) delete obj.image;
 	if (obj.images) delete obj.images;
-}
+};
