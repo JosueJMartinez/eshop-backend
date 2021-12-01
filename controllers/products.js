@@ -45,7 +45,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 	});
 	if (!foundCategory) {
 		// delete files in public/temp folder
-		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		if (req.files.uploadHero) deleteFiles(req.files.uploadHero);
 		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
 
 		throw new ErrorResponse(`Category ${req.body.category} does not exist`, 400);
@@ -60,8 +60,8 @@ exports.createProduct = asyncHandler(async (req, res) => {
 	};
 
 	// modify the path for image and gallery
-	if (req.files.profileImage)
-		req.body.image = `./public/products/${req.body.name}/${req.files.profileImage[0].filename}`;
+	if (req.files.uploadHero)
+		req.body.image = `./public/products/${req.body.name}/${req.files.uploadHero[0].filename}`;
 	if (req.files.uploadGallery)
 		req.body.images = req.files.uploadGallery.map(
 			image => `./public/products/${req.body.name}/${image.filename}`
@@ -75,7 +75,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 
 	if (!addedProduct) {
 		// delete files in public/temp folder
-		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		if (req.files.uploadHero) deleteFiles(req.files.uploadHero);
 		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
 		throw new ErrorResponse(`Unable to create product please try again`, 500);
 	}
@@ -84,7 +84,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 	checkDirectory(`./public/products/${req.body.name}`);
 
 	// move files from temp to public/products
-	if (req.files.profileImage) mvFilesFromTmpToDest(req.files.profileImage, [addedProduct.image]);
+	if (req.files.uploadHero) mvFilesFromTmpToDest(req.files.uploadHero, [addedProduct.image]);
 	if (req.files.uploadGallery) mvFilesFromTmpToDest(req.files.uploadGallery, addedProduct.images);
 
 	res.status(201).json({
@@ -191,7 +191,7 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 // @access	 Private
 exports.updateProductImage = asyncHandler(async (req, res, next) => {
 	// if no profile image uploaded return ErrorResponse
-	if (!req.files.profileImage) {
+	if (!req.files.uploadHero) {
 		throw new ErrorResponse(`Please upload an image`, 400);
 	}
 
@@ -202,13 +202,13 @@ exports.updateProductImage = asyncHandler(async (req, res, next) => {
 	const product = await Product.findById(productId);
 	// if no product return ErrorResponse and delete image from tmp folder
 	if (!product) {
-		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		if (req.files.uploadHero) deleteFiles(req.files.uploadHero);
 		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
 	}
 
 	// Make sure user is product owner or admin if return ErrorResponse
 	if (product.owner.toString() !== currentUser.id && currentUser.role !== 'admin') {
-		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		if (req.files.uploadHero) deleteFiles(req.files.uploadHero);
 		throw new ErrorResponse(
 			`User ${req.user.id} is not authorized to update product ${productId}`,
 			401
@@ -219,7 +219,7 @@ exports.updateProductImage = asyncHandler(async (req, res, next) => {
 
 	// construct path for new image
 	const updatedProductImage = {
-		image: `./public/products/${product.name}/${req.files.profileImage[0].filename}`,
+		image: `./public/products/${product.name}/${req.files.uploadHero[0].filename}`,
 	};
 
 	const oldProdImage = product.image;
@@ -236,7 +236,7 @@ exports.updateProductImage = asyncHandler(async (req, res, next) => {
 	}
 
 	// move new image to path from updatedProduct image
-	mvFilesFromTmpToDest(req.files.profileImage, [updatedProduct.image]);
+	mvFilesFromTmpToDest(req.files.uploadHero, [updatedProduct.image]);
 
 	res.status(200).json({
 		success: true,

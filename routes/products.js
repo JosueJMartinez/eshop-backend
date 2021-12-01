@@ -20,7 +20,7 @@ router
 	.put(
 		protect,
 		authorize('publisher', 'admin'),
-		upload.fields([{ name: 'profileImage', maxCount: 1 }]),
+		upload.fields([{ name: 'uploadHero', maxCount: 1 }]),
 		updateProductImage
 	);
 
@@ -58,7 +58,7 @@ router
 		protect,
 		authorize('publisher', 'admin'),
 		upload.fields([
-			{ name: 'profileImage', maxCount: 1 },
+			{ name: 'uploadHero', maxCount: 1 },
 			{ name: 'uploadGallery', maxCount: 10 },
 		]),
 		createProduct
