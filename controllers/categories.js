@@ -137,7 +137,6 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
 	});
 });
 
-// TODO: Update category image
 exports.updateCategoryImage = asyncHandler(async (req, res, next) => {
 	// if gallery images are uploaded delete them
 	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
