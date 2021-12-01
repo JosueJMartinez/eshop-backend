@@ -17,11 +17,21 @@ const { upload } = require('../middleware/upload');
 
 router
 	.route('/:productId/image')
-	.put(protect, authorize('publisher', 'admin'), upload, updateProductImage);
+	.put(
+		protect,
+		authorize('publisher', 'admin'),
+		upload.fields([{ name: 'profileImage', maxCount: 1 }]),
+		updateProductImage
+	);
 
 router
 	.route('/:productId/images')
-	.put(protect, authorize('publisher', 'admin'), upload, updateProductImages)
+	.put(
+		protect,
+		authorize('publisher', 'admin'),
+		upload.fields([{ name: 'uploadGallery', maxCount: 10 }]),
+		updateProductImages
+	)
 	.delete(protect, authorize('publisher', 'admin'), deleteProductImages);
 router
 	.route('/:productId')
@@ -44,6 +54,14 @@ router
 		}),
 		getProducts
 	)
-	.post(protect, authorize('publisher', 'admin'), upload, createProduct);
+	.post(
+		protect,
+		authorize('publisher', 'admin'),
+		upload.fields([
+			{ name: 'profileImage', maxCount: 1 },
+			{ name: 'uploadGallery', maxCount: 10 },
+		]),
+		createProduct
+	);
 
 module.exports = router;

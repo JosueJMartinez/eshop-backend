@@ -190,9 +190,6 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 // @route		 Put /api/v1/products/:productId/image
 // @access	 Private
 exports.updateProductImage = asyncHandler(async (req, res, next) => {
-	// if gallery images are uploaded delete them
-	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
-
 	// if no profile image uploaded return ErrorResponse
 	if (!req.files.profileImage) {
 		throw new ErrorResponse(`Please upload an image`, 400);
@@ -251,9 +248,6 @@ exports.updateProductImage = asyncHandler(async (req, res, next) => {
 // @route		 Put /api/v1/products/:productId/images
 // @access	 Private
 exports.updateProductImages = asyncHandler(async (req, res, next) => {
-	// if profile image is uploaded delete it
-	if (req.files.profileImage) deleteFiles(req.files.profileImage);
-
 	// if no gallery images uploaded return ErrorResponse
 	if (!req.files.uploadGallery) {
 		throw new ErrorResponse(`Please upload at least one image`, 400);

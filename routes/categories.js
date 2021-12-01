@@ -13,7 +13,14 @@ const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 const { upload } = require('../middleware/upload');
 
-router.route('/:catId/icon').put(protect, authorize('admin'), upload, updateCategoryImage);
+router
+	.route('/:catId/icon')
+	.put(
+		protect,
+		authorize('admin'),
+		upload.fields([{ name: 'profileImage', maxCount: 1 }]),
+		updateCategoryImage
+	);
 
 router
 	.route('/:catId')
@@ -29,6 +36,11 @@ router
 		}),
 		getCategories
 	)
-	.post(protect, authorize('admin'), upload, createCategory);
+	.post(
+		protect,
+		authorize('admin'),
+		upload.fields([{ name: 'profileImage', maxCount: 1 }]),
+		createCategory
+	);
 
 module.exports = router;

@@ -20,7 +20,4 @@ const imageFilter = function (req, file, cb) {
 
 // @desc middleware to upload the images to temp folder
 // @return {void}
-exports.upload = multer({ storage: storage, fileFilter: imageFilter }).fields([
-	{ name: 'profileImage', maxCount: 1 },
-	{ name: 'uploadGallery', maxCount: 10 },
-]);
+exports.upload = multer({ storage: storage, fileFilter: imageFilter });
