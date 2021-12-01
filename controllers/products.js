@@ -8,6 +8,7 @@ const {
 	deleteFiles,
 	checkFileExists,
 	removeImagesFromObj,
+	removeFolderIfEmpty,
 } = require('../utils/utils');
 const fs = require('fs');
 
@@ -105,7 +106,7 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 
 	// removeImagesFromObj(updateProduct);
 
-	// Make sure user is product owner or admin if return ErrorResponse
+	// Make sure user is not product owner and not admin if is return ErrorResponse
 	if (product.owner.toString() !== currentUser.id && currentUser.role !== 'admin')
 		throw new ErrorResponse(
 			`User ${req.user.id} is not authorized to update product ${productId}`,
@@ -147,12 +148,9 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 			mvFilesFromTmpToDest([product.image], [updatedProduct.image]);
 
 		if (updatedProduct.images.length > 0) {
-			mvFilesFromTmpToDest(oldPathes, updatedProduct.images, next);
-
-			const idx = product.image.indexOf('/', 18);
-			const path = product.image.substring(0, idx);
-			fs.rmSync(path, { recursive: true });
+			mvFilesFromTmpToDest(oldPathes, updatedProduct.images);
 		}
+		removeFolderIfEmpty(`./public/products/${product.name}`);
 	}
 
 	res.status(200).json({
@@ -227,7 +225,7 @@ exports.updateProductImage = asyncHandler(async (req, res, next) => {
 		image: `./public/products/${product.name}/${req.files.profileImage[0].filename}`,
 	};
 
-	const oldProdImage = { path: product.image };
+	const oldProdImage = product.image;
 
 	// update product with new path for image
 	const updatedProduct = await Product.findByIdAndUpdate(productId, updatedProductImage, {
@@ -236,10 +234,8 @@ exports.updateProductImage = asyncHandler(async (req, res, next) => {
 	});
 
 	// delete old image unless it is default image
-	if (oldProdImage.path !== './public/default.png') {
-		try {
-			deleteFiles([oldProdImage]);
-		} catch (err) {}
+	if (oldProdImage !== './public/default.png') {
+		deleteFiles([oldProdImage]);
 	}
 
 	// move new image to path from updatedProduct image
@@ -366,10 +362,6 @@ exports.deleteProductImages = asyncHandler(async (req, res, next) => {
 			runValidators: true,
 		}
 	);
-
-	// const imagesToDelete = imagesToDeletePath.map(image => {
-	// 	return { path: image };
-	// });
 
 	// delete images from gallery
 	deleteFiles(imagesToDeletePath);

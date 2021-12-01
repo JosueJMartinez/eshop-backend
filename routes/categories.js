@@ -5,12 +5,15 @@ const {
 	createCategory,
 	updateCategory,
 	deleteCategory,
+	updateCategoryImage,
 } = require('../controllers/categories');
 const Category = require('../models/Category');
 const advancedResults = require('../middleware/advancedResults');
 const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 const { upload } = require('../middleware/upload');
+
+router.route('/:catId/icon').put(protect, authorize('admin'), upload, updateCategoryImage);
 
 router
 	.route('/:catId')

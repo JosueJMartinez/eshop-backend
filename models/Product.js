@@ -78,9 +78,7 @@ ProductSchema.pre('save', function (next) {
 });
 
 ProductSchema.pre('remove', function (next) {
-	const idx = this.image.indexOf('/', 18);
-	const path = this.image.substring(0, idx);
-	fs.rmSync(path, { recursive: true });
+	fs.rmSync(`./public/products/${this.name}`);
 	next();
 });
 

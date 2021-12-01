@@ -42,9 +42,7 @@ CategorySchema.virtual('products', {
 });
 
 CategorySchema.pre('remove', function (next) {
-	const idx = this.icon.indexOf('/', 20);
-	const path = this.icon.substring(0, idx);
-	fs.rmSync(path, { recursive: true });
+	fs.rmSync(`./public/categories/${this.name}`, { recursive: true });
 	next();
 });
 

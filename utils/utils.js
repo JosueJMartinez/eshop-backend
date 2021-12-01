@@ -26,7 +26,7 @@ exports.checkDirectory = (dir, i = 0) => {
 	return;
 };
 
-// Moves files from one directory to another
+// @desc Moves files from one directory to another
 // @param images object files to move
 // @param pathes arr destDirectory to move files to
 exports.mvFilesFromTmpToDest = (files, pathes) => {
@@ -65,4 +65,11 @@ exports.checkFileExists = filePath => {
 exports.removeImagesFromObj = obj => {
 	if (obj.image) delete obj.image;
 	if (obj.images) delete obj.images;
+};
+
+// @desc Remove Folder if Empty
+// @param string path to remove
+exports.removeFolderIfEmpty = path => {
+	const files = fs.readdirSync(path);
+	if (!files.length) fs.rmSync(path, { recursive: true });
 };

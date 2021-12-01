@@ -7,6 +7,7 @@ const {
 	deleteFiles,
 	checkFileExists,
 	removeImagesFromObj,
+	removeFolderIfEmpty,
 } = require('../utils/utils');
 
 //  @desc     Get all categories
@@ -76,7 +77,7 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 //  @access   Private
 exports.updateCategory = asyncHandler(async (req, res, next) => {
 	const { catId } = { ...req.params };
-	const currentUser = req.user;
+
 	const updateCategory = req.body;
 	let category = await Category.findById(catId);
 	if (!category) throw new ErrorResponse(`Resource not found with id of ${catId}`, 404, catId);
@@ -98,8 +99,10 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 		runValidators: true,
 	});
 
-	if (updateCategory.name && category.icon !== './public/default.png')
+	if (updateCategory.name && category.icon !== './public/default.png') {
 		mvFilesFromTmpToDest([{ path: category.icon }], [updatedCategory.icon]);
+		removeFolderIfEmpty(`./public/categories/${category.name}`);
+	}
 
 	res.status(200).json({
 		success: true,
@@ -148,30 +151,34 @@ exports.updateCategoryImage = asyncHandler(async (req, res, next) => {
 	const currentUser = req.user;
 
 	const category = await Category.findById(catId);
-	if (!category) throw new ErrorResponse(`Resource not found with id of ${catId}`, 404, catId);
+	if (!category) {
+		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		throw new ErrorResponse(`Resource not found with id of ${catId}`, 404, catId);
+	}
 
-	// Make sure user is category owner or admin if return ErrorResponse
-	if (currentUser.role !== 'admin')
-		throw new ErrorResponse(
-			`User ${req.user.id} is not authorized to update category ${catId}`,
-			401
-		);
-
-	// remove old image if exists
-	if (category.icon !== './public/default.png' && checkFileExists(category.icon))
-		removeImagesFromObj(category.icon);
-
+	checkDirectory(`./public/categories/${category.name}`);
 	// modify the path for image
-	if (req.files.profileImage)
-		req.body.icon = `./public/categories/${category.name}/${req.files.profileImage[0].filename}`;
+	// if (req.files.profileImage)
+	// 	req.body.icon = `./public/categories/${category.name}/${req.files.profileImage[0].filename}`;
 
+	const updatedCategoryImage = {
+		icon: `./public/categories/${category.name}/${req.files.profileImage[0].filename}`,
+	};
 	// move files from temp to public/categories
-	mvFilesFromTmpToDest(req.files.profileImage, [category.icon]);
+	const oldCatIcon = category.icon;
 
-	const updatedCategory = await Category.findByIdAndUpdate(catId, req.body, {
+	const updatedCategory = await Category.findByIdAndUpdate(catId, updatedCategoryImage, {
 		new: true,
 		runValidators: true,
 	});
+
+	// delete old image unless it is default image
+	if (oldCatIcon !== './public/default.png') {
+		deleteFiles([oldCatIcon]);
+	}
+
+	// move new image to path from updatedProduct image
+	mvFilesFromTmpToDest(req.files.profileImage, [updatedCategory.icon]);
 
 	res.status(200).json({
 		success: true,
