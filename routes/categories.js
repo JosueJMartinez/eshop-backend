@@ -18,7 +18,7 @@ router
 	.put(
 		protect,
 		authorize('admin'),
-		upload.fields([{ name: 'profileImage', maxCount: 1 }]),
+		upload.fields([{ name: 'uploadIcon', maxCount: 1 }]),
 		updateCategoryImage
 	);
 
@@ -39,7 +39,7 @@ router
 	.post(
 		protect,
 		authorize('admin'),
-		upload.fields([{ name: 'profileImage', maxCount: 1 }]),
+		upload.fields([{ name: 'uploadIcon', maxCount: 1 }]),
 		createCategory
 	);
 

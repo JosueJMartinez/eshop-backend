@@ -41,10 +41,8 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
 //  @access   Private
 exports.createCategory = asyncHandler(async (req, res, next) => {
 	// modify the path for image and gallery
-	if (req.files.profileImage)
-		req.body.icon = `./public/categories/${req.body.name}/${req.files.profileImage[0].filename}`;
-	// remove files for a gallery if they were uploaded
-	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
+	if (req.files.uploadIcon)
+		req.body.icon = `./public/categories/${req.body.name}/${req.files.uploadIcon[0].filename}`;
 
 	const newCategory = new Category({
 		...req.body,
@@ -53,7 +51,7 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 	const addedCategory = await newCategory.save();
 
 	if (!addedCategory) {
-		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		if (req.files.uploadIcon) deleteFiles(req.files.uploadIcon);
 
 		throw new ErrorResponse(`1. Category could not be created`, 404);
 	}
@@ -63,8 +61,7 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 
 	// move files from temp to public/categories
 	// delete upload gallery if one was uploaded
-	if (req.files.profileImage) mvFilesFromTmpToDest(req.files.profileImage, [addedCategory.icon]);
-	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
+	if (req.files.uploadIcon) mvFilesFromTmpToDest(req.files.uploadIcon, [addedCategory.icon]);
 
 	res.status(201).json({
 		success: true,
@@ -138,11 +135,8 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateCategoryImage = asyncHandler(async (req, res, next) => {
-	// if gallery images are uploaded delete them
-	if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
-
 	// if no profile image uploaded return ErrorResponse
-	if (!req.files.profileImage) {
+	if (!req.files.uploadIcon) {
 		throw new ErrorResponse(`Please upload an image`, 400);
 	}
 
@@ -151,17 +145,17 @@ exports.updateCategoryImage = asyncHandler(async (req, res, next) => {
 
 	const category = await Category.findById(catId);
 	if (!category) {
-		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		if (req.files.uploadIcon) deleteFiles(req.files.uploadIcon);
 		throw new ErrorResponse(`Resource not found with id of ${catId}`, 404, catId);
 	}
 
 	checkDirectory(`./public/categories/${category.name}`);
 	// modify the path for image
-	// if (req.files.profileImage)
-	// 	req.body.icon = `./public/categories/${category.name}/${req.files.profileImage[0].filename}`;
+	// if (req.files.uploadIcon)
+	// 	req.body.icon = `./public/categories/${category.name}/${req.files.uploadIcon[0].filename}`;
 
 	const updatedCategoryImage = {
-		icon: `./public/categories/${category.name}/${req.files.profileImage[0].filename}`,
+		icon: `./public/categories/${category.name}/${req.files.uploadIcon[0].filename}`,
 	};
 	// move files from temp to public/categories
 	const oldCatIcon = category.icon;
@@ -177,7 +171,7 @@ exports.updateCategoryImage = asyncHandler(async (req, res, next) => {
 	}
 
 	// move new image to path from updatedProduct image
-	mvFilesFromTmpToDest(req.files.profileImage, [updatedCategory.icon]);
+	mvFilesFromTmpToDest(req.files.uploadIcon, [updatedCategory.icon]);
 
 	res.status(200).json({
 		success: true,
