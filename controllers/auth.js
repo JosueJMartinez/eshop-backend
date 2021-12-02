@@ -3,7 +3,7 @@ const User = require('../models/User'),
 	asyncHandler = require('../middleware/async'),
 	sendEmail = require('../utils/sendEmail'),
 	crypto = require('crypto'),
-	{ checkFor } = require('../utils/utils'),
+	{ deleteFiles } = require('../utils/utils'),
 	redisClient = require('../configurations/redis');
 
 //  @desc     Register User
@@ -12,11 +12,12 @@ const User = require('../models/User'),
 exports.register = asyncHandler(async (req, res, next) => {
 	// check make sure admin is not a role selected while registering
 	// TODO: save user profile image to a folder
-	checkFor(
-		req.body.role === 'admin',
-		`Cannot create a user with admin role do not have necessary permissions`,
-		401
-	);
+
+	if (req.body.role === 'admin') {
+		deleteFiles(req.files.profileImages);
+		throw new ErrorResponse(`You cannot register as an admin`, 400);
+	}
+
 	// Create user
 	const user = await User.create(req.body);
 

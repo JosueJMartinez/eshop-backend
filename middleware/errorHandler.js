@@ -12,8 +12,10 @@ function errorHandler(err, req, res, next) {
 	if (error.code === 11000) {
 		// check error message for which collection failed
 		// delete files in public/temp folder
+		if (req.files.uploadHero) deleteFiles(req.files.uploadHero);
+		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
 		if (req.files.profileImage) deleteFiles(req.files.profileImage);
-		if (req.files.uploadProdGallery) deleteFiles(req.files.uploadProdGallery);
+		if (req.files.uploadIcon) deleteFiles(req.files.uploadIcon);
 
 		if (_.isEqual(error.keyPattern, { bootcamp: 1, user: 1 }))
 			error = new ErrorResponse(`User already has a review`, 400);

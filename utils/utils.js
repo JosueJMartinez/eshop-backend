@@ -1,11 +1,11 @@
 const ErrorResponse = require('./errorResponse');
 const fs = require('fs');
 
-exports.checkFor = (checker, message, errorCode) => {
-	if (checker) {
-		throw new ErrorResponse(message, errorCode || 500);
-	}
-};
+// exports.checkFor = (checker, message, errorCode) => {
+// 	if (checker) {
+// 		throw new ErrorResponse(message, errorCode || 500);
+// 	}
+// };
 
 // @desc Checks if directory exists if not creates it
 // @param string directory to check
