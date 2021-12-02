@@ -11,9 +11,10 @@ const {
 	deleteUser,
 } = require('../controllers/auth');
 const { protect } = require('../middleware/auth');
+const { upload } = require('../middleware/upload');
 const router = express.Router();
 
-router.route('/register').post(register);
+router.route('/register').post(upload.single('profileImage'), register);
 router.route('/login').post(login);
 router.route('/logout').get(protect, logout);
 router.route('/me').get(protect, getCurrentUser);

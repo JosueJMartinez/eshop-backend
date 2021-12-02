@@ -3,7 +3,7 @@ const User = require('../models/User'),
 	asyncHandler = require('../middleware/async'),
 	sendEmail = require('../utils/sendEmail'),
 	crypto = require('crypto'),
-	{ deleteFiles } = require('../utils/utils'),
+	{ deleteFiles, mvFilesFromTmpToDest, checkDirectory } = require('../utils/utils'),
 	redisClient = require('../configurations/redis');
 
 //  @desc     Register User
@@ -11,15 +11,25 @@ const User = require('../models/User'),
 //  @access   Public
 exports.register = asyncHandler(async (req, res, next) => {
 	// check make sure admin is not a role selected while registering
-	// TODO: save user profile image to a folder
 
 	if (req.body.role === 'admin') {
-		deleteFiles(req.files.profileImages);
+		deleteFiles([req.file]);
 		throw new ErrorResponse(`You cannot register as an admin`, 400);
 	}
 
+	if (req.file)
+		req.body.profileImage = `./public/profiles/${req.body.username}/${req.file.filename}`;
+
 	// Create user
 	const user = await User.create(req.body);
+
+	if (!user) {
+		deleteFiles([req.file]);
+		throw new ErrorResponse(`User already exists`, 400);
+	}
+	checkDirectory(`./public/profiles/${req.body.username}`);
+
+	if (req.file) mvFilesFromTmpToDest([req.file], [user.profileImage]);
 
 	sendTokenResponse(user, 200, res);
 });

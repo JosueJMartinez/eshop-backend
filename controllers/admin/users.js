@@ -1,7 +1,7 @@
 const User = require('../../models/User');
 const ErrorResponse = require('../../utils/errorResponse');
 const asyncHandler = require('../../middleware/async');
-const { checkFor } = require('../../utils/utils');
+// const { checkFor } = require('../../utils/utils');
 
 //  @desc     Get all users
 //  @route    Get /api/v1/auth/users
@@ -27,7 +27,10 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 exports.updateUser = asyncHandler(async (req, res, next) => {
 	// TODO: add move profile image to new folder if name changes
 	// while updating user check make sure password is not being updated
-	checkFor(req.body.password, 'Cannot update since old password was not validated', 422);
+	if (req.body.password) {
+		throw new ErrorResponse(`Password cannot be updated`, 400);
+	}
+	// checkFor(req.body.password, 'Cannot update since old password was not validated', 422);
 
 	const { userId } = { ...req.params };
 	const updateUser = req.body;
