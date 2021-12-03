@@ -98,17 +98,16 @@ exports.getCurrentUser = asyncHandler(async (req, res, next) => {
 exports.updateUser = asyncHandler(async (req, res, next) => {
 	// Add support to move profile image to a folder if name changes
 	// check make sure password is being updated
-	checkFor(req.body.password, 'Cannot update since old password was not validated', 422);
-	// check make sure unable to update your role to admin
-	checkFor(
-		req.body.role === 'admin',
-		`Cannot create a user with admin role do not have necessary permissions`,
-		422
-	);
+	const { role, password, profileImage, username } = { ...req.body };
+
+	if (role && role === 'admin') throw new ErrorResponse(`You cannot update as an admin`, 400);
+	if (password) throw new ErrorResponse(`You cannot update password`, 400);
+	if (username) throw new ErrorResponse(`You cannot update username`, 400);
+	if (profileImage) throw new ErrorResponse(`You cannot update profile image`, 400);
 
 	let { user } = { ...req };
 	user = await User.findByIdAndUpdate(user.id, req.body, { new: true });
-	user = await user.save();
+	// user = await user.save();
 	res.status(200).json({ success: true, data: user });
 });
 
