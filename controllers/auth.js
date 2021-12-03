@@ -1,9 +1,16 @@
+const Product = require('../models/Product');
 const User = require('../models/User'),
 	ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('../middleware/async'),
 	sendEmail = require('../utils/sendEmail'),
 	crypto = require('crypto'),
-	{ deleteFiles, mvFilesFromTmpToDest, checkDirectory } = require('../utils/utils'),
+	{
+		deleteFiles,
+		mvFilesFromTmpToDest,
+		checkDirectory,
+		checkFileExists,
+		removeFolderIfEmpty,
+	} = require('../utils/utils'),
 	redisClient = require('../configurations/redis');
 
 //  @desc     Register User
@@ -99,15 +106,39 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 	// Add support to move profile image to a folder if name changes
 	// check make sure password is being updated
 	const { role, password, profileImage, username } = { ...req.body };
-
+	const updateUser = req.body;
+	// check make sure role is not admin while updating
 	if (role && role === 'admin') throw new ErrorResponse(`You cannot update as an admin`, 400);
-	if (password) throw new ErrorResponse(`You cannot update password`, 400);
-	if (username) throw new ErrorResponse(`You cannot update username`, 400);
-	if (profileImage) throw new ErrorResponse(`You cannot update profile image`, 400);
+	// if password  or profileImage exists delete it from req.body
+	if (password) delete updateUser.password;
+	// if (username) throw new ErrorResponse(`You cannot update username`, 400);
+	if (profileImage) delete updateUser.profileImage;
 
-	let { user } = { ...req };
-	user = await User.findByIdAndUpdate(user.id, req.body, { new: true });
-	// user = await user.save();
+	// make sure current user logged in exists
+	let user = await User.findById(req.user.id);
+
+	if (!user) throw new ErrorResponse('Current logged in user not found', 401);
+
+	const oldUser = { ...user };
+	// if username is updated, update profileImage path with new name
+	if (username) {
+		checkDirectory(`./public/profiles/${username}`);
+		// if username updated update profileImage path with new name
+		if (user.profileImage !== './public/defaultProfile.png' && checkFileExists(user.profileImage))
+			req.body.profileImage = `./public/profiles/${username}/${req.file.filename}`;
+		else req.body.profileImage = `./public/defaultProfile.png`;
+		// move req.body obj to user obj
+		Object.assign(user, req.body);
+	}
+
+	user = await user.save();
+	// move profileImage to new folder if username is updated
+	if (username) {
+		if (oldUser.profileImage !== './public/default.png')
+			mvFilesFromTmpToDest([oldUser.profileImage], [user.profileImage]);
+		removeFolderIfEmpty(`./public/profiles/${oldUser.username}`);
+	}
+
 	res.status(200).json({ success: true, data: user });
 });
 

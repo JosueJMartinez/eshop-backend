@@ -81,6 +81,7 @@ const UserSchema = new mongoose.Schema(
 
 // Slugify product name
 UserSchema.pre('save', function (next) {
+	if (!this.isModified('username')) next();
 	this.slug = slugify(this.username, { lower: true, replacement: '_' });
 	next();
 });

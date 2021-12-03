@@ -14,7 +14,7 @@ function errorHandler(err, req, res, next) {
 		// delete files in public/temp folder
 		if (req.files.uploadHero) deleteFiles(req.files.uploadHero);
 		if (req.files.uploadGallery) deleteFiles(req.files.uploadGallery);
-		if (req.files.profileImage) deleteFiles(req.files.profileImage);
+		if (req.file) deleteFiles([req.file]);
 		if (req.files.uploadIcon) deleteFiles(req.files.uploadIcon);
 
 		if (_.isEqual(error.keyPattern, { bootcamp: 1, user: 1 }))
