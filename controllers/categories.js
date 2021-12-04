@@ -91,6 +91,7 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 		else updateCategory.icon = `./public/default.png`;
 	}
 
+	// TODO: update this to be a save instead to trigger prehooks in Category model
 	const updatedCategory = await Category.findByIdAndUpdate(catId, updateCategory, {
 		new: true,
 		runValidators: true,

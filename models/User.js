@@ -1,4 +1,3 @@
-const { fstat } = require('fs');
 const mongoose = require('mongoose'),
 	bcrypt = require('bcryptjs'),
 	jwt = require('jsonwebtoken'),

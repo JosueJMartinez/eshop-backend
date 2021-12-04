@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-// const slugify = require('slugify');
 
 const opts = { toJSON: { virtuals: true }, toObject: { virtuals: true } };
 

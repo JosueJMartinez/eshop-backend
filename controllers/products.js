@@ -224,6 +224,7 @@ exports.updateProductImage = asyncHandler(async (req, res, next) => {
 
 	const oldProdImage = product.image;
 
+	// TODO: update this to be a save instead to trigger prehooks in Product model
 	// update product with new path for image
 	const updatedProduct = await Product.findByIdAndUpdate(productId, updatedProductImage, {
 		new: true,
