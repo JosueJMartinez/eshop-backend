@@ -67,3 +67,10 @@ exports.removeFolderIfEmpty = path => {
 	const files = fs.readdirSync(path);
 	if (!files.length) fs.rmSync(path, { recursive: true });
 };
+
+// @desc Check if folder exists
+// @param string path to check
+// @returns boolean true or false
+exports.checkFolderExists = path => {
+	return fs.existsSync(path);
+};

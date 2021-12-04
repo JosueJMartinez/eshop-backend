@@ -1,8 +1,11 @@
+const { fstat } = require('fs');
 const mongoose = require('mongoose'),
 	bcrypt = require('bcryptjs'),
 	jwt = require('jsonwebtoken'),
 	crypto = require('crypto'),
-	slugify = require('slugify');
+	slugify = require('slugify'),
+	fs = require('fs');
+const { checkFolderExists } = require('../utils/utils');
 
 const opts = { toJSON: { virtuals: true }, toObject: { virtuals: true } };
 
@@ -97,6 +100,8 @@ UserSchema.virtual('orders', {
 // Cascade delete orders and reassign categories to an admin when a user/publisher is deleted
 UserSchema.pre('remove', async function (next) {
 	// look for all orders the user is owner of
+	const path = `./public/profiles/${this.username}`;
+	if (checkFolderExists(path)) fs.rmSync(path, { recursive: true });
 	const orders = await this.model('Order').find({ user: this.id });
 
 	// go through each order and remove them and will cascade down to delete
