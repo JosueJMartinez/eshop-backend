@@ -74,6 +74,7 @@ const ProductSchema = new mongoose.Schema(
 
 // Slugify product name
 ProductSchema.pre('save', function (next) {
+	if (!this.isModified('name')) next();
 	this.slug = slugify(this.name, { lower: true, replacement: '_' });
 	next();
 });

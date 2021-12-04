@@ -30,6 +30,7 @@ const CategorySchema = new mongoose.Schema(
 
 // Slugify product name
 CategorySchema.pre('save', function (next) {
+	if (!this.isModified('name')) next();
 	this.slug = slugify(this.name, { lower: true, replacement: '_' });
 	next();
 });
