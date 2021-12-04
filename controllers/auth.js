@@ -198,7 +198,6 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 //  @route    Delete /api/v1/auth/deleteaccount
 //  @access   Private
 exports.deleteUser = asyncHandler(async (req, res, next) => {
-	// TODO: delete user profile image from a folder
 	const user = await User.findById(req.user.id);
 
 	if (!user) throw new ErrorResponse(`User does not exist with id: ${userId}`, 404);
@@ -245,4 +244,43 @@ const sendTokenResponse = (user, statusCode, res) => {
 	res.status(statusCode).json({ success: true, token });
 };
 
-// TODO: Add route to update profile Image
+// @desc     Update profile image
+// @route    Put /api/v1/auth/updateProfileImage
+// @access   Private
+exports.updateProfileImage = asyncHandler(async (req, res, next) => {
+	const newProfileImage = req.file;
+
+	// check make sure file is uploaded
+	if (!newProfileImage) throw new ErrorResponse('Please upload a file', 400);
+
+	// check if user exists
+	let user = await User.findById(req.user.id);
+	if (!user) {
+		deleteFiles([newProfileImage.path]);
+		throw new ErrorResponse(`User does not exist with id: ${userId}`, 404);
+	}
+	// make sure directory exists
+	checkDirectory(`./public/profiles/${user.username}`);
+
+	// construct new path for newProfileImage
+	const updateProfile = {
+		profileImage: `./public/profiles/${user.username}/${newProfileImage.filename}`,
+	};
+
+	const oldProfileImage = user.profileImage;
+
+	Object.assign(user, updateProfile);
+
+	user = await user.save();
+
+	if (!user) {
+		deleteFiles([newProfileImage]);
+		throw new ErrorResponse('Unable to update profile image', 500);
+	}
+
+	if (oldProfileImage !== './public/defaultProfile.png') deleteFiles([oldProfileImage]);
+
+	mvFilesFromTmpToDest([newProfileImage], [user.profileImage]);
+
+	res.status(200).json({ success: true, data: user });
+});

@@ -9,6 +9,7 @@ const {
 	updateUser,
 	updatePassword,
 	deleteUser,
+	updateProfileImage,
 } = require('../controllers/auth');
 const { protect } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
@@ -23,5 +24,6 @@ router.route('/updatePassword').put(protect, updatePassword);
 router.route('/forgotPassword').post(forgotPassword);
 router.route('/resetPassword/:resetToken').put(resetPassword);
 router.route('/deleteaccount').delete(protect, deleteUser);
+router.route('/updateProfileImage').put(protect, upload.single('profileImage'), updateProfileImage);
 
 module.exports = router;
