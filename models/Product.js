@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const fs = require('fs');
+const { checkFolderExists } = require('../utils/utils');
 
 const opts = { toJSON: { virtuals: true } };
 
@@ -78,7 +79,7 @@ ProductSchema.pre('save', function (next) {
 });
 
 ProductSchema.pre('remove', function (next) {
-	fs.rmSync(`./public/products/${this.name}`);
+	if (checkFolderExists(path)) fs.rmSync(`./public/products/${this.name}`, { recursive: true });
 	next();
 });
 

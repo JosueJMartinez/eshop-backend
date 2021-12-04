@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const fs = require('fs');
+const { checkFolderExists } = require('../utils/utils');
 
 const opts = { toJSON: { virtuals: true }, toObject: { virtuals: true } };
 
@@ -42,7 +43,7 @@ CategorySchema.virtual('products', {
 });
 
 CategorySchema.pre('remove', function (next) {
-	fs.rmSync(`./public/categories/${this.name}`, { recursive: true });
+	if (checkFolderExists(path)) fs.rmSync(`./public/categories/${this.name}`, { recursive: true });
 	next();
 });
 
