@@ -1,3 +1,4 @@
+const { split } = require('lodash');
 const Product = require('../models/Product');
 const User = require('../models/User'),
 	ErrorResponse = require('../utils/errorResponse'),
@@ -119,22 +120,21 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 
 	if (!user) throw new ErrorResponse('Current logged in user not found', 401);
 
-	const oldUser = { ...user };
+	const oldUser = { ...user._doc };
 	// if username is updated, update profileImage path with new name
 	if (username) {
 		checkDirectory(`./public/profiles/${username}`);
 		// if username updated update profileImage path with new name
 		if (user.profileImage !== './public/defaultProfile.png' && checkFileExists(user.profileImage))
-			req.body.profileImage = `./public/profiles/${username}/${req.file.filename}`;
+			req.body.profileImage = `./public/profiles/${username}/${user.profileImage.split('/').pop()}`;
 		else req.body.profileImage = `./public/defaultProfile.png`;
-		// move req.body obj to user obj
-		Object.assign(user, req.body);
 	}
-
+	// move req.body obj to user obj
+	Object.assign(user, req.body);
 	user = await user.save();
 	// move profileImage to new folder if username is updated
 	if (username) {
-		if (oldUser.profileImage !== './public/default.png')
+		if (oldUser.profileImage !== './public/defaultProfile.png')
 			mvFilesFromTmpToDest([oldUser.profileImage], [user.profileImage]);
 		removeFolderIfEmpty(`./public/profiles/${oldUser.username}`);
 	}
