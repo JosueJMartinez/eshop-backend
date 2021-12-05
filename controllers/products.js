@@ -104,6 +104,8 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 	if (!product)
 		throw new ErrorResponse(`Resource not found with id of ${productId}`, 404, productId);
 
+	const oldProduct = { ...product._doc };
+
 	// removeImagesFromObj(updateProduct);
 
 	// Make sure user is not product owner and not admin if is return ErrorResponse
@@ -136,21 +138,19 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 				}
 			})
 			.map(image => `./public/products/${updateProduct.name}/${image.split('/').pop()}`);
+	Object.assign(product, updateProduct);
 
-	const updatedProduct = await Product.findByIdAndUpdate(productId, updateProduct, {
-		new: true,
-		runValidators: true,
-	});
+	const updatedProduct = await product.save();
 
 	// Move image and images in product path to new path in updatedProduct
 	if (updateProduct.name) {
-		if (product.image !== './public/default.png')
-			mvFilesFromTmpToDest([product.image], [updatedProduct.image]);
+		if (oldProduct.image !== './public/default.png')
+			mvFilesFromTmpToDest([oldProduct.image], [updatedProduct.image]);
 
 		if (updatedProduct.images.length > 0) {
 			mvFilesFromTmpToDest(oldPathes, updatedProduct.images);
 		}
-		removeFolderIfEmpty(`./public/products/${product.name}`);
+		removeFolderIfEmpty(`./public/products/${oldProduct.name}`);
 	}
 
 	res.status(200).json({
@@ -224,7 +224,6 @@ exports.updateProductImage = asyncHandler(async (req, res, next) => {
 
 	const oldProdImage = product.image;
 
-	// TODO: update this to be a save instead to trigger prehooks in Product model
 	// update product with new path for image
 	const updatedProduct = await Product.findByIdAndUpdate(productId, updatedProductImage, {
 		new: true,

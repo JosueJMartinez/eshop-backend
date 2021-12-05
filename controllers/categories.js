@@ -79,6 +79,7 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 	let category = await Category.findById(catId);
 	if (!category) throw new ErrorResponse(`Resource not found with id of ${catId}`, 404, catId);
 
+	const oldCategory = { ...category._doc };
 	// If updatedProduct name is updated, update image path with new name
 	if (updateCategory.name) {
 		checkDirectory(`./public/categories/${updateCategory.name}`);
@@ -91,15 +92,13 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 		else updateCategory.icon = `./public/default.png`;
 	}
 
-	// TODO: update this to be a save instead to trigger prehooks in Category model
-	const updatedCategory = await Category.findByIdAndUpdate(catId, updateCategory, {
-		new: true,
-		runValidators: true,
-	});
+	Object.assign(category, updateCategory);
+	const updatedCategory = await category.save();
 
-	if (updateCategory.name && category.icon !== './public/default.png') {
-		mvFilesFromTmpToDest([{ path: category.icon }], [updatedCategory.icon]);
-		removeFolderIfEmpty(`./public/categories/${category.name}`);
+	if (updateCategory.name) {
+		if (oldCategory.icon !== './public/default.png')
+			mvFilesFromTmpToDest([{ path: oldCategory.icon }], [updatedCategory.icon]);
+		removeFolderIfEmpty(`./public/categories/${oldCategory.name}`);
 	}
 
 	res.status(200).json({
