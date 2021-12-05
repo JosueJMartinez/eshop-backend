@@ -80,7 +80,8 @@ ProductSchema.pre('save', function (next) {
 });
 
 ProductSchema.pre('remove', function (next) {
-	if (checkFolderExists(path)) fs.rmSync(`./public/products/${this.name}`, { recursive: true });
+	if (checkFolderExists(`./public/products/${this.name}`))
+		fs.rmSync(`./public/products/${this.name}`, { recursive: true });
 	next();
 });
 

@@ -44,7 +44,8 @@ CategorySchema.virtual('products', {
 });
 
 CategorySchema.pre('remove', function (next) {
-	if (checkFolderExists(path)) fs.rmSync(`./public/categories/${this.name}`, { recursive: true });
+	if (checkFolderExists(`./public/categories/${this.name}`))
+		fs.rmSync(`./public/categories/${this.name}`, { recursive: true });
 	next();
 });
 

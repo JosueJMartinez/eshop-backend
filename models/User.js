@@ -109,9 +109,10 @@ UserSchema.pre('remove', async function (next) {
 		await order.remove();
 	});
 
-	// // next delete bootcamps, reviews, and courses related to this user
-	// not sure if going to use this
-	// await this.model('Bootcamp').deleteMany({ user: this._id });
+	const products = await this.model('Product').find({ owner: this.id });
+	products.forEach(async product => {
+		await product.remove();
+	});
 	// await this.model('Review').deleteMany({ user: this._id });
 	// await this.model('Course').deleteMany({ user: this._id });
 
