@@ -51,8 +51,6 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 //  @route    Post /api/v1/auth/users
 //  @access   Private/Admin
 exports.createUser = asyncHandler(async (req, res, next) => {
-	// TODO: save user profile image to a folder
-
 	if (req.file)
 		req.body.profileImage = `./public/profiles/${req.body.username}/${req.file.filename}`;
 
