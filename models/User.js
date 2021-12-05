@@ -96,7 +96,6 @@ UserSchema.virtual('orders', {
 	justOne: false,
 });
 
-// TODO: Fix bug where user is deleted it's products are deleted also
 // Cascade delete orders and reassign categories to an admin when a user/publisher is deleted
 UserSchema.pre('remove', async function (next) {
 	// look for all orders the user is owner of
