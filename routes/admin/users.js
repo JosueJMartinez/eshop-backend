@@ -9,6 +9,7 @@ const {
 const User = require('../../models/User');
 const advancedResults = require('../../middleware/advancedResults');
 const { protect, authorize } = require('../../middleware/auth');
+const { upload } = require('../../middleware/upload');
 const router = express.Router();
 
 router.use(protect);
@@ -18,6 +19,6 @@ router.route('/:userId').get(getUser).put(updateUser).delete(deleteUser);
 router
 	.route('/')
 	.get(advancedResults({ Model: User, model: 'Users' }), getUsers)
-	.post(createUser);
+	.post(upload.single('profileImage'), createUser);
 
 module.exports = router;

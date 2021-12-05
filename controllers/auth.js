@@ -33,7 +33,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 
 	if (!user) {
 		deleteFiles([req.file]);
-		throw new ErrorResponse(`User already exists`, 400);
+		throw new ErrorResponse(`Unable to create user`, 400);
 	}
 	checkDirectory(`./public/profiles/${req.body.username}`);
 

@@ -1,6 +1,7 @@
 const User = require('../../models/User');
 const ErrorResponse = require('../../utils/errorResponse');
 const asyncHandler = require('../../middleware/async');
+const { deleteFiles, checkDirectory, mvFilesFromTmpToDest } = require('../../utils/utils');
 // const { checkFor } = require('../../utils/utils');
 
 //  @desc     Get all users
@@ -51,7 +52,20 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 //  @access   Private/Admin
 exports.createUser = asyncHandler(async (req, res, next) => {
 	// TODO: save user profile image to a folder
+
+	if (req.file)
+		req.body.profileImage = `./public/profiles/${req.body.username}/${req.file.filename}`;
+
 	const newUser = await User.create(req.body);
+
+	if (!newUser) {
+		deleteFiles([req.file]);
+		throw new ErrorResponse(`Unable to create a new user`, 400);
+	}
+
+	checkDirectory(`./public/profiles/${req.body.username}`);
+
+	if (req.file) mvFilesFromTmpToDest([req.file], [newUser.profileImage]);
 
 	res.status(201).json({ success: true, data: newUser });
 });
