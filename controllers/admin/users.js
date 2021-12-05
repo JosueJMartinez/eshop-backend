@@ -106,7 +106,6 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
 	});
 });
 
-// TODO: add route to update user profile image
 exports.updateUserProfileImage = asyncHandler(async (req, res, next) => {
 	const { userId } = { ...req.params };
 	const newProfileImage = req.file;
