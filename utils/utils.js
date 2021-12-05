@@ -35,7 +35,8 @@ exports.mvFilesFromTmpToDest = (files, pathes) => {
 };
 
 // @desc Removes files from tmp directory
-// @param array of pathes to remove
+// @param array of pathes to remove either an object or string if object need to be {path:path to remove}
+// @returns void
 exports.deleteFiles = files => {
 	if (typeof files[0] === 'object' && files[0] !== null)
 		files.forEach(file => {

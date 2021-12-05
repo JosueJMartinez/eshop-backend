@@ -5,6 +5,7 @@ const {
 	createUser,
 	deleteUser,
 	updateUser,
+	updateUserProfileImage,
 } = require('../../controllers/admin/users');
 const User = require('../../models/User');
 const advancedResults = require('../../middleware/advancedResults');
@@ -14,7 +15,9 @@ const router = express.Router();
 
 router.use(protect);
 router.use(authorize('admin'));
-
+router
+	.route('/:userId/updateUserProfileImage')
+	.put(upload.single('profileImage'), updateUserProfileImage);
 router.route('/:userId').get(getUser).put(updateUser).delete(deleteUser);
 router
 	.route('/')

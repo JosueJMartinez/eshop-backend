@@ -1,5 +1,3 @@
-const { split } = require('lodash');
-const Product = require('../models/Product');
 const User = require('../models/User'),
 	ErrorResponse = require('../utils/errorResponse'),
 	asyncHandler = require('../middleware/async'),
@@ -110,9 +108,9 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 	const updateUser = req.body;
 	// check make sure role is not admin while updating
 	if (role && role === 'admin') throw new ErrorResponse(`You cannot update as an admin`, 400);
+
 	// if password  or profileImage exists delete it from req.body
 	if (password) delete updateUser.password;
-	// if (username) throw new ErrorResponse(`You cannot update username`, 400);
 	if (profileImage) delete updateUser.profileImage;
 
 	// make sure current user logged in exists
@@ -256,7 +254,7 @@ exports.updateProfileImage = asyncHandler(async (req, res, next) => {
 	// check if user exists
 	let user = await User.findById(req.user.id);
 	if (!user) {
-		deleteFiles([newProfileImage.path]);
+		deleteFiles([newProfileImage]);
 		throw new ErrorResponse(`User does not exist with id: ${userId}`, 404);
 	}
 	// make sure directory exists
